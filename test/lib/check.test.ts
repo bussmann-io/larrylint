@@ -22,12 +22,12 @@ describe('check', () => {
     const { results, violations } = await check(cwd)
 
     expect(reported(cwd, results)).toEqual({
-      'src/runtime/app/sections/ContactFormSection.vue': ['larrylint/definitions', 'larrylint/button-type'],
-      'src/runtime/server/orchestr/Brunch.query.ts': ['larrylint/orchestr-files', 'larrylint/orchestr-files'],
+      'src/runtime/app/sections/ContactFormSection.vue': ['larrylint/definition-prefix', 'larrylint/button-type'],
+      'src/runtime/server/orchestr/Brunch.query.ts': ['larrylint/handler-domains', 'larrylint/handler-exports'],
       'src/runtime/server/utils/vouchers/context.ts': ['larrylint/layers'],
     })
 
-    expect(violations['src/runtime/server/orchestr/Brunch.query.ts']).toEqual({ 'larrylint/orchestr-files': 2 })
+    expect(violations['src/runtime/server/orchestr/Brunch.query.ts']).toEqual({ 'larrylint/handler-domains': 1, 'larrylint/handler-exports': 1 })
   })
 
   it('hides baselined violations until a file gets more of them', async () => {
@@ -43,7 +43,7 @@ describe('check', () => {
     const dirty = await check(cwd)
 
     expect(reported(cwd, dirty.results)).toEqual({
-      'src/runtime/server/orchestr/Brunch.query.ts': ['larrylint/orchestr-files', 'larrylint/orchestr-files', 'larrylint/orchestr-files'],
+      'src/runtime/server/orchestr/Brunch.query.ts': ['larrylint/handler-exports', 'larrylint/handler-exports'],
     })
   })
 

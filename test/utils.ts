@@ -36,3 +36,7 @@ export function copyFixture() {
 
   return cwd
 }
+
+export function withDefinition(definition: string) {
+  return `<script lang="ts">\nexport const definition = ${definition}\n</script>\n\n<template><div /></template>\n`
+}

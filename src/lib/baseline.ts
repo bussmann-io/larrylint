@@ -1,6 +1,3 @@
-import type { Rule } from 'eslint'
-import type { FileInfo } from './layout'
-
 import { readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'pathe'
 
@@ -76,36 +73,4 @@ export function writeBaseline(root: string, baseline: Baseline) {
  */
 export function countViolations(baseline: Baseline) {
   return Object.values(baseline).flatMap(rules => Object.values(rules)).reduce((sum, count) => sum + count, 0)
-}
-
-/**
- * Collects a rule's reports for one file and only passes them on once the file has more
- * violations of that rule than its baseline allows, like ESLint's own bulk suppressions.
- *
- * @param context The rule context.
- * @param file The linted file.
- *
- * @returns `report` to collect a report and `flush` to pass them on at the end of the file.
- */
-export function createReporter(context: Rule.RuleContext, file: Pick<FileInfo, 'root' | 'path'> | undefined) {
-  const reports: Rule.ReportDescriptor[] = []
-
-  return {
-    report: (descriptor: Rule.ReportDescriptor) => {
-      reports.push(descriptor)
-    },
-
-    flush: () => {
-      const settings = context.settings.larrylint as { baseline?: boolean } | undefined
-      const allowed = file && settings?.baseline !== false ? readBaseline(file.root)[file.path]?.[context.id] ?? 0 : 0
-
-      if (reports.length > allowed) {
-        for (const descriptor of reports) {
-          context.report(descriptor)
-        }
-      }
-
-      reports.length = 0
-    },
-  }
 }

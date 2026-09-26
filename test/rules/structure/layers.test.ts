@@ -1,7 +1,7 @@
-import { layers } from '../../../src/rules/structure/layers'
+import rule from '../../../src/rules/structure/layers'
 import { fixtureRuntime, runtime, tsTester } from '../../utils'
 
-tsTester.run('layers', layers, {
+tsTester.run('layers', rule, {
   valid: [
     { filename: runtime('app/composables/useBrunch.ts'), code: `import { BrunchQuery } from '../../shared/tokens/Brunch'` },
     { filename: runtime('server/orchestr/ticketing/Order.query.ts'), code: `import { fetchOrders } from '../../utils/ticketing/orders'` },

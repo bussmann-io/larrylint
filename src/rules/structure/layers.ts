@@ -1,9 +1,8 @@
-import type { Rule } from 'eslint'
 import type { Node } from 'estree'
-import type { FileInfo, Kind } from '../../lib/layout'
+import type { FileInfo, Kind } from '../../laioutr/layout'
 
-import { createReporter } from '../../lib/baseline'
-import { classify, domainOf } from '../../lib/layout'
+import { classify, domainOf } from '../../laioutr/layout'
+import { defineRule } from '../../lib/rule'
 import { isTypeOnly } from '../../utils/ast/module'
 import { resolveImport } from '../../utils/fs'
 
@@ -109,7 +108,7 @@ function findViolation(importer: FileInfo, target: FileInfo, typeOnly: boolean, 
   return undefined
 }
 
-export const layers: Rule.RuleModule = {
+export default defineRule({
   meta: {
     type: 'problem',
     docs: {
@@ -142,15 +141,10 @@ export const layers: Rule.RuleModule = {
     },
   },
 
-  create(context) {
-    const importer = classify(context.filename)
+  applies: file => file.side === 'app' || file.side === 'server' || file.side === 'shared',
 
-    if (!importer || importer.test || (importer.side !== 'app' && importer.side !== 'server' && importer.side !== 'shared')) {
-      return {}
-    }
-
+  create: ({ context, file: importer, report }) => {
     const { sharedDomains = [] } = (context.options[0] ?? {}) as Options
-    const reporter = createReporter(context, importer)
 
     const checkImport = (node: Node, source: unknown, typeOnly: boolean) => {
       if (typeof source !== 'string') {
@@ -159,7 +153,7 @@ export const layers: Rule.RuleModule = {
 
       if (source.startsWith('node:')) {
         if (importer.side !== 'server' && !typeOnly) {
-          reporter.report({ node, messageId: 'nodeBuiltin', data: { name: source } })
+          report({ node, messageId: 'nodeBuiltin', data: { name: source } })
         }
 
         return
@@ -170,34 +164,30 @@ export const layers: Rule.RuleModule = {
       const violation = target && findViolation(importer, target, typeOnly, sharedDomains)
 
       if (violation) {
-        reporter.report({ node, ...violation })
+        report({ node, ...violation })
       }
     }
 
     return {
-      'ImportDeclaration': (node) => {
+      ImportDeclaration: (node) => {
         checkImport(node, node.source.value, isTypeOnly(node))
       },
 
-      'ExportNamedDeclaration': (node) => {
+      ExportNamedDeclaration: (node) => {
         if (node.source) {
           checkImport(node, node.source.value, isTypeOnly(node))
         }
       },
 
-      'ExportAllDeclaration': (node) => {
+      ExportAllDeclaration: (node) => {
         checkImport(node, node.source.value, isTypeOnly(node))
       },
 
-      'ImportExpression': (node) => {
+      ImportExpression: (node) => {
         if (node.source.type === 'Literal') {
           checkImport(node, node.source.value, false)
         }
       },
-
-      'Program:exit': () => {
-        reporter.flush()
-      },
     }
   },
-}
+})

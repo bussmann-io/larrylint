@@ -33,10 +33,8 @@ export async function larrylint(options: LarrylintOptions = {}): Promise<Linter.
       files: ['**/src/**/*.{ts,mts,cts,js,mjs,cjs,vue}'],
       plugins: { larrylint: plugin },
       rules: {
+        ...Object.fromEntries(Object.keys(plugin.rules).map(id => [`larrylint/${id}`, 'error'] as const)),
         'larrylint/layers': ['error', { sharedDomains }],
-        'larrylint/orchestr-files': 'error',
-        'larrylint/definitions': 'error',
-        'larrylint/button-type': 'error',
       },
     },
   ]

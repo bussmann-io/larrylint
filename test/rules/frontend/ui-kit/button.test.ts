@@ -1,10 +1,10 @@
-import { button } from '../../../src/rules/components/button'
-import { runtime, vueTester } from '../../utils'
+import rule from '../../../../src/rules/frontend/ui-kit/button'
+import { runtime, vueTester } from '../../../utils'
 
 const filename = runtime('app/sections/SectionContactForm.vue')
 const uiKitButton = `<script setup lang="ts">\nimport Button from '#ui-kit/components/Button/Button.vue'\n</script>\n`
 
-vueTester.run('button-type', button, {
+vueTester.run('button-type', rule, {
   valid: [
     { filename, code: `<template><l-button button-type="submit">Send</l-button></template>` },
     { filename, code: `${uiKitButton}<template><button type="submit">Send</button></template>` },

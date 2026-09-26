@@ -27,12 +27,18 @@ After that, `eslint .` and your editor report larrylint's rules next to your own
 
 ## Rules
 
-| Rule                           | What it checks                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `larrylint/layers`             | App code doesn't import server code and vice versa; shared code imports neither. Runtime code doesn't import build-time code. Nothing imports orchestr handlers. Handlers and server utils don't import from `server/client/`, and only handlers and media libraries import middleware. Utils are the bottom layer. Domains stay apart. |
-| `larrylint/orchestr-files`     | Laioutr loads every file in `orchestr/` as a server plugin, so only handler files belong there, in a domain folder, exporting nothing but their handler.                                                                                                                                                                              |
-| `larrylint/definitions`        | `defineSection()` lives in `app/sections/Section*.vue`, `defineBlock()` in `app/blocks/Block*.vue`, with a `component` name that matches the file and no top-level schema fields named `style`, `class`, `key`, `ref`, `is`, `slot`, `refFor` or `refKey`, which Vue swallows before they reach the component.                                                                                                                                                                                    |
-| `larrylint/button-type`        | No `type` on the ui-kit button: it always renders its `button-type` prop, so `type="submit"` silently renders a dead button. Autofixable.                                                                                                                                                                                             |
+| Rule | What it checks |
+| --- | --- |
+| `larrylint/layers` | App code doesn't import server code and vice versa; shared code imports neither. Runtime code doesn't import build-time code. Nothing imports orchestr handlers. Handlers and server utils don't import from `server/client/`, and only handlers and media libraries import middleware. Utils are the bottom layer. Domains stay apart. |
+| `larrylint/orchestr-files` | Laioutr loads every file in `orchestr/` as a server plugin, so only handler files belong there. |
+| `larrylint/handler-domains` | Handlers live in a domain folder, e.g. `orchestr/<domain>/`. |
+| `larrylint/handler-exports` | Handler files export their handler as default and nothing else. |
+| `larrylint/definition-folder` | `defineSection()` lives in `app/sections/` and `defineBlock()` in `app/blocks/`, and every `.vue` there has one. |
+| `larrylint/definition-prefix` | Sections are named `Section*.vue`, blocks `Block*.vue`. |
+| `larrylint/component-name` | The `component` of a definition matches its file name. |
+| `larrylint/reserved-field-names` | No top-level schema fields named `style`, `class`, `key`, `ref`, `is`, `slot`, `refFor` or `refKey`, which Vue swallows before they reach the component. |
+| `larrylint/button-type` | No `type` on the ui-kit button: it always renders its `button-type` prop, so `type="submit"` silently renders a dead button. Autofixable. |
+| `larrylint/mutation-errors` | An awaited or dropped `mutateAsync()` handles its error. Otherwise a failed mutation replaces the whole section or block with frontend-core's "Retry" state. |
 
 Type imports are fine across most layers, since they don't end up in the bundle.
 
