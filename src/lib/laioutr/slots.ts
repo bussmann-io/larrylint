@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs'
 import { join } from 'pathe'
-import { cachedReader } from '../utils/fs'
+import { cachedReader } from '../../utils/fs'
 
 const PROP_READ = /\.props\??\.([A-Z_$][\w$]*)|\.props\??\.?\[\s*['"]([^'"]+)['"]\s*\]|['"]([^'"]+)['"]\s+in\s+[\w$.?]+\.props\b/gi
 

@@ -1,9 +1,9 @@
 import type { Rule } from 'eslint'
 import type { AST } from 'vue-eslint-parser'
-import type { FileInfo } from '../laioutr/layout'
+import type { FileInfo } from './laioutr/layout'
 
-import { classify } from '../laioutr/layout'
 import { readBaseline } from './baseline'
+import { classify } from './laioutr/layout'
 
 export type TemplateListener = Record<string, (node: never) => void>
 

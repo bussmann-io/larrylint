@@ -1,4 +1,4 @@
-import { canonicalNamespaces } from '../../../laioutr/canonical'
+import { canonicalNamespaces } from '../../../lib/laioutr/canonical'
 import { defineRule } from '../../../lib/rule'
 
 export default defineRule({

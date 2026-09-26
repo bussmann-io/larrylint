@@ -1,7 +1,7 @@
 import type { Identifier, Program } from 'estree'
 
 import { dirname, relative } from 'pathe'
-import { readMiddleware } from '../../../laioutr/orchestr'
+import { readMiddleware } from '../../../lib/laioutr/orchestr'
 import { defineRule } from '../../../lib/rule'
 import { uncaughtThrow, walkBody } from '../../../utils/ast/functions'
 import { resolveCallee } from '../../../utils/ast/module'

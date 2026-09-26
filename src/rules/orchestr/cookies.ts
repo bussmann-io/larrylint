@@ -1,7 +1,7 @@
 import type { Rule } from 'eslint'
-import type { HandlerType } from '../../laioutr/layout'
+import type { HandlerType } from '../../lib/laioutr/layout'
 
-import { enclosingMiddleware } from '../../laioutr/orchestr'
+import { enclosingMiddleware } from '../../lib/laioutr/orchestr'
 import { defineRule } from '../../lib/rule'
 import { responseWrite } from '../../utils/nuxt/server'
 

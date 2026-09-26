@@ -1,7 +1,7 @@
 import type { Node } from 'estree'
 
-import { findViolation } from '../../laioutr/layers'
-import { classify } from '../../laioutr/layout'
+import { findViolation } from '../../lib/laioutr/layers'
+import { classify } from '../../lib/laioutr/layout'
 import { defineRule } from '../../lib/rule'
 import { isTypeOnly } from '../../utils/ast/module'
 import { resolveImport } from '../../utils/fs'

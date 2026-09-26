@@ -1,7 +1,7 @@
 import type { Rule } from 'eslint'
 import type { CallExpression, Identifier } from 'estree'
 
-import { destructuredResolvers, linkResolverMethod } from '../../../laioutr/links'
+import { destructuredResolvers, linkResolverMethod } from '../../../lib/laioutr/links'
 import { defineRule } from '../../../lib/rule'
 import { nameOf } from '../../../utils/ast/chain'
 import { canReturnNullish } from '../../../utils/ast/functions'

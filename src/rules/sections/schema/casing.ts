@@ -1,4 +1,4 @@
-import { readDefinition, readFields } from '../../../laioutr/definition'
+import { readDefinition, readFields } from '../../../lib/laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 import { camelCase } from '../../../utils/string'
 

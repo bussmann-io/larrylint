@@ -1,13 +1,13 @@
 export {
   defineLarrylintConfig,
   type LarrylintConfig,
-} from './setup/config'
+} from './lib/setup/config'
 
 export {
   plugin,
-} from './setup/plugin'
+} from './lib/setup/plugin'
 
 export {
   larrylint as default,
   type LarrylintOptions,
-} from './setup/preset'
+} from './lib/setup/preset'

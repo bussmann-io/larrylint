@@ -1,4 +1,4 @@
-import { readDefinition, readFields } from '../../../laioutr/definition'
+import { readDefinition, readFields } from '../../../lib/laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 
 const RESERVED = new Set(['key', 'ref', 'ref_for', 'ref_key', 'class', 'style'])

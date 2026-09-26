@@ -1,6 +1,6 @@
 import type { Expression, LogicalExpression, PrivateIdentifier, Program } from 'estree'
 
-import { fillValue, readDefinition, readFields } from '../../../laioutr/definition'
+import { fillValue, readDefinition, readFields } from '../../../lib/laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 import { isNullish } from '../../../utils/ast/values'
 import { findPropsVariable } from '../../../utils/vue/script'

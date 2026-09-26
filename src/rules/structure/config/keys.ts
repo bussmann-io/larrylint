@@ -1,4 +1,4 @@
-import { readPackage } from '../../../laioutr/package'
+import { readPackage } from '../../../lib/laioutr/package'
 import { defineRule } from '../../../lib/rule'
 import { isRuntimeConfig } from '../../../utils/nuxt/config'
 

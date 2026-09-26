@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'pathe'
-import { findPackage } from '../utils/fs'
+import { findPackage } from '../../utils/fs'
 
 const PACKAGE = '@laioutr-core/canonical-types'
 

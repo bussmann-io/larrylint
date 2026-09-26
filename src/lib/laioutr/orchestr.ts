@@ -1,8 +1,8 @@
 import type { Rule } from 'eslint'
 import type { ArrowFunctionExpression, CallExpression, FunctionExpression } from 'estree'
 
-import { chainRoot } from '../utils/ast/chain'
-import { isFunction } from '../utils/ast/functions'
+import { chainRoot } from '../../utils/ast/chain'
+import { isFunction } from '../../utils/ast/functions'
 
 export interface Middleware {
   /** `extendRequest` runs before every query; `use` wraps the handlers built with the builder. */

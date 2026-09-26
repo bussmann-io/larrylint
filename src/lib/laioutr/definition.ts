@@ -1,10 +1,10 @@
 import type { CallExpression, Literal, ObjectExpression, Program } from 'estree'
 import type { Kind } from './layout'
 
-import { unwrap } from '../utils/ast/chain'
-import { resolveConstant } from '../utils/ast/module'
-import { findProperty, findStringProperty, objectElements } from '../utils/ast/object'
-import { walk } from '../utils/ast/walk'
+import { unwrap } from '../../utils/ast/chain'
+import { resolveConstant } from '../../utils/ast/module'
+import { findProperty, findStringProperty, objectElements } from '../../utils/ast/object'
+import { walk } from '../../utils/ast/walk'
 
 export const DEFINERS = {
   defineSection: { kind: 'section', folder: 'sections' },

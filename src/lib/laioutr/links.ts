@@ -1,6 +1,6 @@
 import type { CallExpression, VariableDeclarator } from 'estree'
 
-import { nameOf } from '../utils/ast/chain'
+import { nameOf } from '../../utils/ast/chain'
 
 const METHODS = new Set(['resolve', 'resolveOrThrow'])
 

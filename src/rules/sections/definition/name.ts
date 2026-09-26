@@ -1,5 +1,5 @@
 import { parse } from 'pathe'
-import { readDefinition } from '../../../laioutr/definition'
+import { readDefinition } from '../../../lib/laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 
 export default defineRule({

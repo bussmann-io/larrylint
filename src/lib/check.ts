@@ -4,8 +4,8 @@ import type { BaselineResult } from './baseline'
 import tsParser from '@typescript-eslint/parser'
 import { ESLint } from 'eslint'
 import vueParser from 'vue-eslint-parser'
-import { larrylint } from '../setup/preset'
 import { applyBaseline } from './baseline'
+import { larrylint } from './setup/preset'
 
 const PARSERS: Linter.Config[] = [
   {

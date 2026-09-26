@@ -4,7 +4,7 @@ import { Linter } from 'eslint'
 import { join } from 'pathe'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { BASELINE_FILE, writeBaseline } from '../../src/lib/baseline'
-import { plugin } from '../../src/setup/plugin'
+import { plugin } from '../../src/lib/setup/plugin'
 import { copyFixture } from '../utils'
 
 const UTIL = 'src/runtime/server/utils/tracking/track.ts'

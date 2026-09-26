@@ -1,4 +1,4 @@
-import { DEFINERS, readDefinition } from '../../../laioutr/definition'
+import { DEFINERS, readDefinition } from '../../../lib/laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 import { findProperty } from '../../../utils/ast/object'
 

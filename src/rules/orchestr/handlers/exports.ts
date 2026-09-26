@@ -9,7 +9,7 @@ export default defineRule({
     },
     schema: [],
     messages: {
-      missingDefault: 'Export the handler as default, this will fail the build.',
+      missingDefault: 'Export the handler as default, or it will fail the build.',
     },
   },
 

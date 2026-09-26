@@ -1,7 +1,7 @@
 import type { Program } from 'estree'
 import type { AST } from 'vue-eslint-parser'
 
-import { DEFINERS, readDefinition } from '../../../laioutr/definition'
+import { DEFINERS, readDefinition } from '../../../lib/laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 import { parseVueFile } from '../../../utils/vue/parse'
 import { importedComponent } from '../../../utils/vue/script'

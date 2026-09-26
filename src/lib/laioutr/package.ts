@@ -1,5 +1,5 @@
 import { join } from 'pathe'
-import { cachedReader } from '../utils/fs'
+import { cachedReader } from '../../utils/fs'
 
 export interface PackageInfo {
   /** The name of the package, if specified. */

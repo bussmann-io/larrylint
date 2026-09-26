@@ -2,7 +2,7 @@ import type { Rule } from 'eslint'
 import type { CallExpression, Node } from 'estree'
 import type { AST } from 'vue-eslint-parser'
 
-import { destructuredResolvers, linkResolverMethod } from '../../../laioutr/links'
+import { destructuredResolvers, linkResolverMethod } from '../../../lib/laioutr/links'
 import { defineRule } from '../../../lib/rule'
 import { nameOf } from '../../../utils/ast/chain'
 import { isInternalPath } from '../../../utils/nuxt/routes'

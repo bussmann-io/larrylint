@@ -1,6 +1,6 @@
-import type { Definer } from '../../../laioutr/definition'
+import type { Definer } from '../../../lib/laioutr/definition'
 
-import { DEFINERS, expectedDefiner, readDefinition } from '../../../laioutr/definition'
+import { DEFINERS, expectedDefiner, readDefinition } from '../../../lib/laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 import { FILE_START } from '../../../utils/ast/location'
 

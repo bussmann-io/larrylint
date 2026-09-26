@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { classify } from '../../src/laioutr/layout'
+import { classify } from '../../../src/lib/laioutr/layout'
 
 describe('classify', () => {
   it('finds handlers and plugins in orchestr/', () => {

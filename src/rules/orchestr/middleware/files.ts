@@ -1,4 +1,4 @@
-import { readMiddleware } from '../../../laioutr/orchestr'
+import { readMiddleware } from '../../../lib/laioutr/orchestr'
 import { defineRule } from '../../../lib/rule'
 import { FILE_START } from '../../../utils/ast/location'
 
