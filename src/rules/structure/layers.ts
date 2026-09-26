@@ -93,6 +93,10 @@ function findViolation(importer: FileInfo, target: FileInfo, typeOnly: boolean, 
     return { messageId: 'crossDomain', data: { from, to } }
   }
 
+  if (importer.kind === 'server-util' && !from && to && !sharedDomains.includes(to)) {
+    return { messageId: 'sharedImportsDomain', data: { to } }
+  }
+
   if (importer.kind === 'app-util' && ABOVE_APP_UTILS.has(target.kind)) {
     return { messageId: 'appUtilImportsUp', data: { kind: LABELS[target.kind!]! } }
   }
@@ -134,6 +138,7 @@ export default defineRule({
       middlewareImported: 'Only orchestr handlers and media libraries import middleware. Move helpers like this to server/utils/.',
       serverUtilImportsUp: 'Server utils are the bottom layer and can\'t import {{kind}} code.',
       crossDomain: 'The {{from}} domain can\'t import from the {{to}} domain. Move the shared code out of the {{to}} folders into server/utils/, or add \'{{to}}\' to sharedDomains.',
+      sharedImportsDomain: 'Shared server utils can\'t import from the {{to}} domain, or every domain that uses them depends on {{to}}. Move the shared code out of the {{to}} folders, or add \'{{to}}\' to sharedDomains.',
       appUtilImportsUp: 'App utils are the bottom layer and can\'t import a {{kind}}. Type imports are fine.',
       composableImportsUp: 'Composables can\'t import a {{kind}}. Type imports are fine.',
       componentImportsSection: 'Components can\'t import sections; sections compose components.',

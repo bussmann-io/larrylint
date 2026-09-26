@@ -63,7 +63,8 @@ export default defineRule({
         const start = href && valueStart(href)
         const external = target && !target.directive && target.value?.value === '_blank'
 
-        if (start?.startsWith('/') && !start.startsWith('//') && !external) {
+        // API routes need a full page load, e.g. a login that redirects.
+        if (href && start?.startsWith('/') && !start.startsWith('//') && !start.startsWith('/api/') && !external) {
           report({ loc: href.loc, messageId: 'anchor' })
         }
       },

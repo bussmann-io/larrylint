@@ -32,8 +32,10 @@ export default defineRule({
     })
 
     return {
-      ImportDefaultSpecifier: (node) => {
-        imported.add(kebabCase(node.local.name))
+      ImportDeclaration: (node) => {
+        for (const specifier of node.specifiers) {
+          imported.add(kebabCase(specifier.local.name))
+        }
       },
     }
   },

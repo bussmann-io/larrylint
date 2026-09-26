@@ -6,6 +6,11 @@ export interface LarrylintConfig {
    * Domains every other domain may import.
    */
   sharedDomains?: string[]
+  /**
+   * Packages too heavy for the chunk every page loads, e.g. `leaflet`. Sections, blocks and
+   * plugins are registered globally, so they must load these with `import()`.
+   */
+  heavyPackages?: string[]
 }
 
 /**
@@ -48,5 +53,6 @@ export async function loadLarrylintConfig(cwd = process.cwd()): Promise<Required
 
   return {
     sharedDomains: config.sharedDomains ?? [],
+    heavyPackages: config.heavyPackages ?? [],
   }
 }

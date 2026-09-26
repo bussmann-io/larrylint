@@ -1,8 +1,14 @@
 import type { ESLint } from 'eslint'
 
 import { name, version } from '../../package.json'
+import money from '../rules/canonical/money'
 import mutationErrors from '../rules/frontend/data/mutations'
+import orchestrStore from '../rules/frontend/data/store'
+import internalAnchors from '../rules/frontend/links/anchors'
+import handBuiltLinks from '../rules/frontend/links/paths'
+import resolveResult from '../rules/frontend/links/resolve'
 import buttonType from '../rules/frontend/ui-kit/button'
+import uiKitTags from '../rules/frontend/ui-kit/tags'
 import actionErrors from '../rules/orchestr/actions/errors'
 import orchestrCookies from '../rules/orchestr/cookies'
 import orchestrFiles from '../rules/orchestr/files'
@@ -29,12 +35,20 @@ import reservedFieldNames from '../rules/sections/schema/reserved'
 import rootId from '../rules/sections/template/id'
 import singleRoot from '../rules/sections/template/root'
 import slotChildren from '../rules/sections/template/slots'
+import heavyImports from '../rules/structure/bundle'
+import configKeys from '../rules/structure/config/keys'
+import publicConfig from '../rules/structure/config/public'
+import knownFolders from '../rules/structure/folders'
 import layers from '../rules/structure/layers'
 
 export const plugin = {
   meta: { name, version },
   rules: {
     'layers': layers,
+    'known-folders': knownFolders,
+    'heavy-imports': heavyImports,
+    'config-keys': configKeys,
+    'public-config': publicConfig,
     'orchestr-files': orchestrFiles,
     'orchestr-cookies': orchestrCookies,
     'handler-domains': handlerDomains,
@@ -62,6 +76,12 @@ export const plugin = {
     'unused-fields': unusedFields,
     'dead-fallbacks': deadFallbacks,
     'button-type': buttonType,
+    'ui-kit-tags': uiKitTags,
     'mutation-errors': mutationErrors,
+    'orchestr-store': orchestrStore,
+    'resolve-result': resolveResult,
+    'hand-built-links': handBuiltLinks,
+    'internal-anchors': internalAnchors,
+    'money': money,
   },
 } satisfies ESLint.Plugin
