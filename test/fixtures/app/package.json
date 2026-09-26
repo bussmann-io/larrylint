@@ -1,0 +1,10 @@
+{
+  "name": "fixture-app",
+  "private": true,
+  "devDependencies": {
+    "larrylint": "*"
+  },
+  "larrylint": {
+    "sharedDomains": ["product"]
+  }
+}

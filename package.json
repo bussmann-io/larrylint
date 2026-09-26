@@ -1,0 +1,59 @@
+{
+  "name": "larrylint",
+  "type": "module",
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.5.3",
+  "description": "Opinionated structure rules for Laioutr apps, as an ESLint preset and a CLI.",
+  "author": "Frederik Bußmann <frederik@bussmann.io>",
+  "license": "MIT",
+  "repository": "bussmann-io/larrylint",
+  "keywords": [
+    "laioutr",
+    "nuxt",
+    "eslint",
+    "eslint-plugin",
+    "architecture",
+    "lint"
+  ],
+  "exports": {
+    ".": "./dist/index.mjs"
+  },
+  "types": "./dist/index.d.mts",
+  "bin": {
+    "larrylint": "dist/cli/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
+  "scripts": {
+    "build": "obuild",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepack": "pnpm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "^8.70.1",
+    "c12": "^3.3.4",
+    "citty": "^0.2.2",
+    "consola": "^3.4.2",
+    "eslint": "^10.11.0",
+    "magicast": "^0.5.5",
+    "nypm": "^0.6.10",
+    "pathe": "^2.0.3",
+    "pkg-types": "^2.3.3",
+    "typescript": "^6.0.3",
+    "vue-eslint-parser": "^10.4.1"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^9.5.1",
+    "@types/estree": "^1.0.9",
+    "@types/node": "^24.13.6",
+    "obuild": "^0.4.40",
+    "vitest": "^4.1.11"
+  }
+}
