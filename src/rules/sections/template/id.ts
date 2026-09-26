@@ -35,8 +35,8 @@ export default defineRule({
         for (const root of template.children) {
           const id = root.type === 'VElement'
             ? root.startTag.attributes.find(attribute => attribute.directive
-              ? attribute.key.name.name === 'bind' && attribute.key.argument?.type === 'VIdentifier' && attribute.key.argument.name === 'id'
-              : attribute.key.name === 'id')
+                ? attribute.key.name.name === 'bind' && attribute.key.argument?.type === 'VIdentifier' && attribute.key.argument.name === 'id'
+                : attribute.key.name === 'id')
             : undefined
 
           if (id) {
