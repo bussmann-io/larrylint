@@ -23,6 +23,8 @@ export type Kind
     | 'shared'
     | 'other'
 
+export type HandlerType = 'query' | 'resolver' | 'link' | 'action' | 'template' | 'page-index'
+
 export interface FileInfo {
   /** Absolute path of the package that holds `src/`. */
   root: string
@@ -32,13 +34,15 @@ export interface FileInfo {
   side: Side
   /** Kind of the file, e.g. `section`, `block`, `component`, `composable`, `app-util`, `app-plugin`, `override`, `handler`, `orchestr-plugin`, `orchestr-file`, `middleware`, `client`, `server-util`, `route`, `nitro-plugin`, `media-library`, `shared` or `other`. */
   kind?: Kind
+  /** Type of an orchestr handler, from its file name, e.g. `action` for `Order.action.ts`. */
+  handler?: HandlerType
   /** Domain folder of a handler or server util, e.g. `ticketing` for `server/utils/ticketing/foo.ts`. */
   domain?: string
   /** Whether the file is a test file, e.g. `foo.test.ts` or `foo.spec.ts`. */
   test: boolean
 }
 
-const HANDLER_FILE = /\.(?:query|resolver|link|action|template|page-index)(?:\.[cm]?[jt]s)?$/
+const HANDLER_FILE = /\.(query|resolver|link|action|template|page-index)(?:\.[cm]?[jt]s)?$/
 const TEST_FILE = /\.(?:test|spec)\.[cm]?[jt]sx?$/
 
 const APP_FOLDERS: Record<string, Kind> = {
@@ -139,7 +143,9 @@ function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'dom
       return { side, kind: 'orchestr-plugin' }
     }
 
-    return { side, kind: HANDLER_FILE.test(parts.at(-1)!) ? 'handler' : 'orchestr-file', domain: nested ? rest[0] : undefined }
+    const handler = HANDLER_FILE.exec(parts.at(-1)!)?.[1] as HandlerType | undefined
+
+    return { side, kind: handler ? 'handler' : 'orchestr-file', handler, domain: nested ? rest[0] : undefined }
   }
 
   const kind = SERVER_FOLDERS[folder] ?? 'other'
