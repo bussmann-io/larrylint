@@ -1,11 +1,10 @@
-import { readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { rmSync, writeFileSync } from 'node:fs'
 import { join } from 'pathe'
+import { readFileCached } from '../utils/fs'
 
 export const BASELINE_FILE = 'larrylint-baseline.json'
 
 export type Baseline = Record<string, Record<string, number>>
-
-const cache = new Map<string, { mtimeMs: number, baseline: Baseline }>()
 
 /**
  * Reads the baseline of a package, cached until the file changes.
@@ -15,28 +14,7 @@ const cache = new Map<string, { mtimeMs: number, baseline: Baseline }>()
  * @returns The baseline, empty if the package has none.
  */
 export function readBaseline(root: string): Baseline {
-  const file = join(root, BASELINE_FILE)
-
-  let mtimeMs: number
-
-  try {
-    mtimeMs = statSync(file).mtimeMs
-  }
-  catch {
-    return {}
-  }
-
-  const cached = cache.get(file)
-
-  if (cached?.mtimeMs === mtimeMs) {
-    return cached.baseline
-  }
-
-  const baseline = JSON.parse(readFileSync(file, 'utf8')) as Baseline
-
-  cache.set(file, { mtimeMs, baseline })
-
-  return baseline
+  return readFileCached(join(root, BASELINE_FILE), text => JSON.parse(text) as Baseline) ?? {}
 }
 
 /**
