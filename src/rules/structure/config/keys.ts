@@ -1,27 +1,6 @@
-import type { Node } from 'estree'
-
 import { readPackage } from '../../../laioutr/package'
 import { defineRule } from '../../../lib/rule'
-
-/**
- * Checks whether an expression is the runtime config, e.g. `useRuntimeConfig()` or its `.public`.
- *
- * @param node The expression.
- * @param variables Variables that hold the runtime config.
- *
- * @returns `true` for the runtime config or its public part.
- */
-function isRuntimeConfig(node: Node, variables: Set<string>): boolean {
-  if (node.type === 'CallExpression') {
-    return node.callee.type === 'Identifier' && node.callee.name === 'useRuntimeConfig'
-  }
-
-  if (node.type === 'Identifier') {
-    return variables.has(node.name)
-  }
-
-  return node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier' && node.property.name === 'public' && isRuntimeConfig(node.object, variables)
-}
+import { isRuntimeConfig } from '../../../utils/nuxt/config'
 
 export default defineRule({
   meta: {

@@ -1,39 +1,19 @@
-import type { ArrowFunctionExpression, CallExpression, Expression, FunctionExpression, Identifier, Literal, Super } from 'estree'
+import type { Rule } from 'eslint'
+import type { ArrowFunctionExpression, CallExpression, FunctionExpression, Literal, Node, ObjectExpression } from 'estree'
 
+import { chainRoot } from '../utils/ast/chain'
+import { isFunction, walkBody } from '../utils/ast/functions'
 import { findStringProperty } from '../utils/ast/object'
 
 export interface Middleware {
   /** `extendRequest` runs before every query; `use` wraps the handlers built with the builder. */
   method: 'extendRequest' | 'use'
+  /** The callback function that implements the middleware. */
   callback: FunctionExpression | ArrowFunctionExpression
 }
 
 /**
- * Finds the identifier a call chain starts from, e.g. `defineOrchestr` in `defineOrchestr.meta({}).use(fn)`.
- *
- * @param node Any link of the chain.
- *
- * @returns The identifier, or `undefined` if the chain starts elsewhere.
- */
-export function chainRoot(node: Expression | Super): Identifier | undefined {
-  let current = node
-
-  for (;;) {
-    if (current.type === 'CallExpression') {
-      current = current.callee
-    }
-    else if (current.type === 'MemberExpression') {
-      current = current.object
-    }
-    else {
-      return current.type === 'Identifier' ? current : undefined
-    }
-  }
-}
-
-/**
- * Reads a middleware on an orchestr builder, e.g. `defineOrchestr.extendRequest(async (args) => ...)`.
- * `.use()` only counts on chains that start from a builder, since the name is common.
+ * Reads a builder's middleware: `extendRequest(fn)`, or `use(fn)` on a chain from a `define*` builder.
  *
  * @param call Any call expression.
  *
@@ -73,4 +53,52 @@ export function readMetaApp(call: CallExpression): { value: string, node: Litera
   }
 
   return findStringProperty(options, 'app')
+}
+
+/**
+ * Checks whether a node runs inside an orchestr middleware callback.
+ *
+ * @param node The node.
+ *
+ * @returns `true` inside `extendRequest(fn)` or a builder's `use(fn)`.
+ */
+export function inMiddleware(node: Rule.Node) {
+  for (let parent = node.parent; parent; parent = parent.parent) {
+    if (isFunction(parent) && parent.parent?.type === 'CallExpression' && readMiddleware(parent.parent)?.callback === parent) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
+ * Lists the objects a component resolver returns, e.g. `{ ... }` in `base: () => ({ ... })`.
+ *
+ * @param value The component's value in `$entity({ ... })`.
+ *
+ * @returns The object literals it returns.
+ */
+export function componentObjects(value: Node): ObjectExpression[] {
+  if (value.type === 'ObjectExpression') {
+    return [value]
+  }
+
+  if (!isFunction(value)) {
+    return []
+  }
+
+  if (value.body.type === 'ObjectExpression') {
+    return [value.body]
+  }
+
+  const objects: ObjectExpression[] = []
+
+  walkBody(value, (node) => {
+    if (node.type === 'ReturnStatement' && node.argument?.type === 'ObjectExpression') {
+      objects.push(node.argument)
+    }
+  })
+
+  return objects
 }

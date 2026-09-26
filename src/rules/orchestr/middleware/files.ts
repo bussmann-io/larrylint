@@ -2,7 +2,6 @@ import { readMiddleware } from '../../../laioutr/orchestr'
 import { defineRule } from '../../../lib/rule'
 import { FILE_START } from '../../../utils/ast/location'
 
-/** Identifiers that make a file orchestr or Nitro middleware. */
 const MIDDLEWARE = new Set(['defineOrchestr', 'defineEventHandler', 'eventHandler', 'defineRequestMiddleware', 'fromNodeMiddleware'])
 
 export default defineRule({

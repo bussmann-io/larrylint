@@ -5,53 +5,10 @@ import type { AST } from 'vue-eslint-parser'
 import { readDefinition, readFields } from '../../../laioutr/definition'
 import { slotProps } from '../../../laioutr/slots'
 import { defineRule } from '../../../lib/rule'
-import { findPropsVariable, isDefineProps } from '../../../utils/vue'
+import { isReference } from '../../../utils/ast/values'
+import { findPropsVariable, isDefineProps, usedProps } from '../../../utils/vue/script'
 
-/**
- * Field types the component doesn't read itself: `info` and `separator` only show something in
- * Studio, and a `query` also tells Studio which data to load, e.g. for a context the block reads.
- */
 const NOT_READ = new Set(['info', 'separator', 'query'])
-
-/**
- * Checks whether an identifier is only a name, e.g. `props` in `x.props` or `{ props: x }`.
- *
- * @param node The identifier.
- *
- * @returns `true` if it doesn't refer to a variable.
- */
-function isName(node: Identifier & { parent: Node }) {
-  const { parent } = node
-
-  return (parent.type === 'MemberExpression' && parent.property === node && !parent.computed) || (parent.type === 'Property' && parent.key === node && !parent.computed && !parent.shorthand)
-}
-
-/**
- * Tells which prop a use of the props object reads.
- *
- * @param node The props identifier.
- *
- * @returns The prop names read, or `undefined` if the whole object escapes, e.g. `v-bind="props"`.
- */
-function readProps(node: Identifier & { parent: Node }): string[] | undefined {
-  const { parent } = node
-
-  if (parent.type === 'MemberExpression' && parent.object === node) {
-    if (!parent.computed && parent.property.type === 'Identifier') {
-      return [parent.property.name]
-    }
-
-    return parent.property.type === 'Literal' && typeof parent.property.value === 'string' ? [parent.property.value] : undefined
-  }
-
-  if (parent.type === 'VariableDeclarator' && parent.init === node && parent.id.type === 'ObjectPattern') {
-    const names = parent.id.properties.map(property => property.type === 'Property' && property.key.type === 'Identifier' && !property.computed ? property.key.name : undefined)
-
-    return names.every(name => name !== undefined) ? names : undefined
-  }
-
-  return undefined
-}
 
 export default defineRule({
   meta: {
@@ -74,8 +31,8 @@ export default defineRule({
     let hasProps = false
     let escapes = false
 
-    const useProps = (node: Identifier & { parent: Node }) => {
-      const names = readProps(node)
+    const track = (node: Identifier & { parent: Node }) => {
+      const names = usedProps(node)
 
       if (names) {
         names.forEach(name => used.add(name))
@@ -93,8 +50,8 @@ export default defineRule({
       },
 
       Identifier: (node: Identifier & { parent: Node }) => {
-        if ((node.name === '$props' || node.name === propsVariable) && !isName(node)) {
-          useProps(node)
+        if ((node.name === '$props' || node.name === propsVariable) && isReference(node)) {
+          track(node)
         }
       },
     })
@@ -106,7 +63,6 @@ export default defineRule({
         const definition = readDefinition(node)
 
         for (const { name, type, as } of definition ? readFields(definition) : []) {
-          // Style and visibility decorators are applied by frontend-core, not read by the component.
           if (name && !as && !NOT_READ.has(type ?? '')) {
             fields.set(name.value, name.node)
           }
@@ -116,8 +72,8 @@ export default defineRule({
       'Identifier': (node: Identifier & Rule.NodeParentExtension) => {
         const declaration = node.parent.type === 'VariableDeclarator' && node.parent.id === node
 
-        if (node.name === propsVariable && !declaration && !isName(node)) {
-          useProps(node)
+        if (node.name === propsVariable && !declaration && isReference(node)) {
+          track(node)
         }
       },
 
@@ -127,7 +83,6 @@ export default defineRule({
         }
 
         const unused = [...fields].filter(([name]) => !used.has(name))
-        // Sections read the props of their blocks through a slot, e.g. `block.props.slug`.
         const readBySection = unused.length > 0 && file.kind === 'block' ? slotProps(file.root) : new Set<string>()
 
         for (const [name, node] of unused) {

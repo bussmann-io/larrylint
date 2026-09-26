@@ -1,70 +1,10 @@
-import type { CallExpression, Identifier, Node } from 'estree'
+import type { Rule } from 'eslint'
+import type { CallExpression, Identifier } from 'estree'
 
 import { defineRule } from '../../../lib/rule'
-import { isFunction } from '../../../utils/ast/functions'
-
-type WithParent<T> = T & { parent?: WithParent<Node> }
-
-/** Directives whose value is only checked for truthiness. */
-const TEST_DIRECTIVES = new Set(['if', 'else-if', 'show'])
-
-/**
- * Checks whether a value is only tested, e.g. in `if (x)`, `x ? a : b`, `x ?? y`, `!x` or `v-if="x"`.
- *
- * @param node The value.
- *
- * @returns `true` if the value is used as a condition or with a fallback.
- */
-function isTested(node: WithParent<Node>): boolean {
-  // Template nodes like VExpressionContainer aren't ESTree nodes, so the parent is typed loosely.
-  const parent = node.parent as { type: string, test?: unknown, left?: unknown, operator?: string, parent?: { type: string, key?: { name?: { name?: string } } } } | undefined
-
-  switch (parent?.type) {
-    case 'IfStatement':
-    case 'WhileStatement':
-    case 'ConditionalExpression':
-      return parent.test === node
-    case 'LogicalExpression':
-      return parent.left === node
-    case 'UnaryExpression':
-      return parent.operator === '!'
-    case 'VExpressionContainer':
-      return parent.parent?.type === 'VAttribute' && TEST_DIRECTIVES.has(parent.parent.key?.name?.name ?? '')
-    default:
-      return false
-  }
-}
-
-/**
- * Finds the variable that holds a call's result: `const href = call` or `const href = computed(() => call)`.
- *
- * @param call The call.
- *
- * @returns The variable's name and whether it's a computed ref, or `undefined`.
- */
-function findHolder(call: WithParent<CallExpression>) {
-  let value: WithParent<Node> = call
-  let parent = call.parent
-
-  if (parent?.type === 'ReturnStatement') {
-    let fn = parent.parent
-
-    while (fn && !isFunction(fn)) {
-      fn = fn.parent
-    }
-
-    parent = fn
-    value = fn ?? value
-  }
-  else if (parent && isFunction(parent) && parent.body === call) {
-    value = parent
-  }
-
-  const computed = value.parent?.type === 'CallExpression' && value.parent.callee.type === 'Identifier' && value.parent.callee.name === 'computed' ? value.parent : undefined
-  const declarator = (computed ?? value).parent
-
-  return declarator?.type === 'VariableDeclarator' && declarator.id.type === 'Identifier' ? { name: declarator.id.name, computed: computed !== undefined } : undefined
-}
+import { nameOf } from '../../../utils/ast/chain'
+import { isReference, isTested } from '../../../utils/ast/values'
+import { findHolder } from '../../../utils/vue/script'
 
 export default defineRule({
   meta: {
@@ -82,35 +22,35 @@ export default defineRule({
 
   create: ({ report, visitTemplate }) => {
     const resolveNames = new Set<string>()
-    const calls: WithParent<CallExpression>[] = []
-    const scriptIdentifiers: WithParent<Identifier>[] = []
-    const templateIdentifiers: WithParent<Identifier>[] = []
+    const calls: (CallExpression & Rule.NodeParentExtension)[] = []
+    const scriptIdentifiers: (Identifier & Rule.NodeParentExtension)[] = []
+    const templateIdentifiers: (Identifier & Rule.NodeParentExtension)[] = []
 
     visitTemplate({
-      Identifier: (node: WithParent<Identifier>) => {
+      Identifier: (node: Identifier & Rule.NodeParentExtension) => {
         templateIdentifiers.push(node)
       },
     })
 
     return {
       'VariableDeclarator': (node) => {
-        if (node.id.type !== 'ObjectPattern' || node.init?.type !== 'Identifier' || node.init.name !== 'linkResolver') {
+        if (node.id.type !== 'ObjectPattern' || !node.init || nameOf(node.init) !== 'linkResolver') {
           return
         }
 
         for (const property of node.id.properties) {
-          if (property.type === 'Property' && property.key.type === 'Identifier' && property.key.name === 'resolve' && property.value.type === 'Identifier') {
+          if (property.type === 'Property' && nameOf(property.key) === 'resolve' && property.value.type === 'Identifier') {
             resolveNames.add(property.value.name)
           }
         }
       },
 
       'CallExpression': (node) => {
-        calls.push(node as WithParent<CallExpression>)
+        calls.push(node)
       },
 
       'Identifier': (node) => {
-        scriptIdentifiers.push(node as WithParent<Identifier>)
+        scriptIdentifiers.push(node)
       },
 
       'Program:exit': () => {
@@ -118,8 +58,7 @@ export default defineRule({
 
         for (const call of calls) {
           const { callee } = call
-          const linkResolver = callee.type === 'MemberExpression' && !callee.computed && callee.property.type === 'Identifier' && callee.property.name === 'resolve'
-            && ((callee.object.type === 'Identifier' && callee.object.name === 'linkResolver') || (callee.object.type === 'MemberExpression' && callee.object.property.type === 'Identifier' && callee.object.property.name === 'linkResolver'))
+          const linkResolver = callee.type === 'MemberExpression' && nameOf(callee) === 'resolve' && nameOf(callee.object) === 'linkResolver'
 
           if (!linkResolver && !(callee.type === 'Identifier' && resolveNames.has(callee.name))) {
             continue
@@ -136,16 +75,15 @@ export default defineRule({
           }
         }
 
-        const check = (identifier: WithParent<Identifier>, template: boolean) => {
+        const check = (identifier: Identifier & Rule.NodeParentExtension, template: boolean) => {
           const computed = holders.get(identifier.name)
-          const parent = identifier.parent
+          const { parent } = identifier
 
-          if (computed === undefined || (parent?.type === 'MemberExpression' && parent.property === identifier && !parent.computed)) {
+          if (computed === undefined || !isReference(identifier)) {
             return
           }
 
-          // The script reads a computed ref through `.value`; the template unwraps it.
-          const readsValue = parent?.type === 'MemberExpression' && parent.object === identifier && parent.property.type === 'Identifier' && parent.property.name === 'value'
+          const readsValue = parent.type === 'MemberExpression' && parent.object === identifier && nameOf(parent) === 'value'
           const value = computed && !template ? (readsValue ? parent : undefined) : identifier
 
           if (value && isTested(value)) {

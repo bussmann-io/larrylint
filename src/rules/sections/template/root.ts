@@ -3,29 +3,9 @@ import type { AST } from 'vue-eslint-parser'
 
 import { readDefinition } from '../../../laioutr/definition'
 import { defineRule } from '../../../lib/rule'
-import { resolveModule } from '../../../utils/fs'
-import { parseVueFile, renderedRoots } from '../../../utils/vue'
-
-/**
- * Finds the `.vue` file a component tag is imported from.
- *
- * @param program The component's script.
- * @param filename Absolute path of the component.
- * @param tag The tag, e.g. `BurgerMenu`.
- *
- * @returns The imported file, or `undefined` for global and package components.
- */
-function importedComponent(program: Program, filename: string, tag: string) {
-  for (const statement of program.body) {
-    const local = statement.type === 'ImportDeclaration' ? statement.specifiers.find(specifier => specifier.type === 'ImportDefaultSpecifier')?.local.name : undefined
-
-    if (statement.type === 'ImportDeclaration' && local === tag && typeof statement.source.value === 'string' && statement.source.value.endsWith('.vue')) {
-      return resolveModule(filename, statement.source.value)
-    }
-  }
-
-  return undefined
-}
+import { parseVueFile } from '../../../utils/vue/parse'
+import { importedComponent } from '../../../utils/vue/script'
+import { renderedRoots } from '../../../utils/vue/template'
 
 export default defineRule({
   meta: {

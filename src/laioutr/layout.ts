@@ -32,15 +32,15 @@ export interface FileInfo {
   root: string
   /** Path relative to `root`, e.g. `src/runtime/server/utils/foo.ts`. */
   path: string
-  /** Side of the file, e.g. `app`, `server`, `shared`, `build` or `other`. */
+  /** Side of the file, e.g. `app` or `server`. */
   side: Side
-  /** Kind of the file, e.g. `section`, `block`, `component`, `composable`, `app-util`, `app-plugin`, `override`, `theme`, `shared-field`, `handler`, `orchestr-plugin`, `orchestr-file`, `middleware`, `client`, `server-util`, `route`, `nitro-plugin`, `media-library`, `shared` or `other`. */
+  /** Kind of the file, from its folder, e.g. `section` or `handler`. */
   kind?: Kind
-  /** Type of an orchestr handler, from its file name, e.g. `action` for `Order.action.ts`. */
+  /** Type of an orchestr handler, e.g. `action` for `Order.action.ts`. */
   handler?: HandlerType
-  /** Domain folder of a handler or server util, e.g. `ticketing` for `server/utils/ticketing/foo.ts`. */
+  /** Domain folder of a handler or server util, e.g. `ticketing`. */
   domain?: string
-  /** Whether the file is a test file, e.g. `foo.test.ts` or `foo.spec.ts`. */
+  /** Whether the file is a test, e.g. `foo.test.ts`. */
   test: boolean
 }
 
@@ -66,13 +66,12 @@ const SERVER_FOLDERS: Record<string, Kind> = {
   'api': 'route',
   'routes': 'route',
   'plugins': 'nitro-plugin',
-  // Laioutr's own apps use both names.
   'media-library': 'media-library',
   'media-libraries': 'media-library',
 }
 
 /**
- * Classifies a file of a Laioutr app by where it lives in the fixed folder layout.
+ * Classifies a file of a Laioutr app by where it lives in the folder layout.
  *
  * @param file Absolute path of the file, or of an import target without extension.
  *
@@ -103,8 +102,7 @@ export function classify(file: string): FileInfo | undefined {
 }
 
 /**
- * Finds the business domain of a file. Folders in orchestr/ are domains; a folder in server/utils/
- * only is one when orchestr/ has a folder of the same name, otherwise it holds shared helpers.
+ * Finds a file's domain; a server/utils/ folder only is one if orchestr/ has a folder of that name.
  *
  * @param file The classified file.
  *
@@ -125,7 +123,7 @@ export function domainOf(file: FileInfo) {
  *
  * @returns The side, kind and domain of the file.
  */
-function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'handler' | 'domain'> {
+export function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'handler' | 'domain'> {
   const [side, folder = '', ...rest] = parts
 
   if (parts.length < 2 || (side !== 'app' && side !== 'server' && side !== 'shared')) {

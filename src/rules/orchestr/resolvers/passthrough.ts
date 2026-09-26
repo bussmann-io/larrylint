@@ -1,4 +1,5 @@
 import { defineRule } from '../../../lib/rule'
+import { nameOf } from '../../../utils/ast/chain'
 
 export default defineRule({
   meta: {
@@ -18,14 +19,7 @@ export default defineRule({
     CallExpression: (node) => {
       const { callee } = node
 
-      if (callee.type !== 'MemberExpression' || callee.computed || callee.property.type !== 'Identifier' || callee.property.name !== 'require') {
-        return
-      }
-
-      const { object } = callee
-      const name = object.type === 'Identifier' ? object.name : object.type === 'MemberExpression' && object.property.type === 'Identifier' ? object.property.name : ''
-
-      if (name === 'passthrough') {
+      if (callee.type === 'MemberExpression' && nameOf(callee) === 'require' && nameOf(callee.object) === 'passthrough') {
         report({ node: callee.property, messageId: 'require' })
       }
     },

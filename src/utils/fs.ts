@@ -1,14 +1,12 @@
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'pathe'
 
-/** Extensions tried, in order, when an import leaves them out. */
 const EXTENSIONS = ['', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '/index.ts', '/index.js']
 
 const directories = new Map<string, boolean>()
 
 /**
- * Creates a reader that parses files and caches the result until a file changes. Each reader
- * has its own cache, so the same file can be read by different readers.
+ * Creates a reader that parses files, with its own cache until a file changes.
  *
  * @param parse Turns a file's text into a value.
  *

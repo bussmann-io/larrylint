@@ -3,7 +3,6 @@ import type { Kind } from './layout'
 
 import { findProperty, findStringProperty, objectElements } from '../utils/ast/object'
 
-/** The definers, with the folder and file name prefix Laioutr expects for each. */
 export const DEFINERS = {
   defineSection: { kind: 'section', folder: 'sections', prefix: 'Section' },
   defineBlock: { kind: 'block', folder: 'blocks', prefix: 'Block' },
@@ -12,6 +11,7 @@ export const DEFINERS = {
 export type Definer = keyof typeof DEFINERS
 
 export interface Definition {
+  /** The called definer, e.g. `defineSection`. */
   definer: Definer
   /** The `defineSection(...)` or `defineBlock(...)` call. */
   call: CallExpression
@@ -28,7 +28,7 @@ export interface Field {
   name?: { value: string, node: Literal }
   /** The field's `type`, e.g. `text` or `checkbox`, if it's a string literal. */
   type?: string
-  /** The decorator role, e.g. `style` or `visibility`, of a field that styles or toggles another field. */
+  /** The decorator role of a field that styles or toggles another, e.g. `style`. */
   as?: string
 }
 
@@ -37,6 +37,7 @@ export interface Group {
   node: ObjectExpression
   /** The group's `label`, if it's a string literal. */
   label?: { value: string, node: Literal }
+  /** The group's fields. */
   fields: Field[]
 }
 
@@ -64,15 +65,36 @@ export function readDefinition(call: CallExpression): Definition | undefined {
 }
 
 /**
- * Reads the schema groups of a definition, e.g. `{ label: 'Content', fields: [...] }`. Spreads and
- * factory calls are skipped, since their fields aren't known without running them.
+ * Reads the schema groups of a definition or an `object` field, skipping spreads and factory calls.
  *
- * @param definition The definition.
+ * @param owner The definition or field.
  *
  * @returns The groups in schema order.
  */
-export function readGroups(definition: Definition): Group[] {
-  return definition.options ? readSchema(definition.options) : []
+export function readGroups(owner: Definition | Field): Group[] {
+  const node = 'call' in owner ? owner.options : owner.node
+
+  return objectElements(node && findProperty(node, 'schema')).map(group => ({
+    node: group,
+    label: findStringProperty(group, 'label'),
+    fields: objectElements(findProperty(group, 'fields')).map(readField),
+  }))
+}
+
+/**
+ * Reads a field's name, type and decorator role.
+ *
+ * @param node The field's object literal.
+ *
+ * @returns The field.
+ */
+export function readField(node: ObjectExpression): Field {
+  return {
+    node,
+    name: findStringProperty(node, 'name'),
+    type: findStringProperty(node, 'type')?.value,
+    as: findStringProperty(node, 'as')?.value,
+  }
 }
 
 /**
@@ -87,7 +109,7 @@ export function readFields(definition: Definition) {
 }
 
 /**
- * Lists every field of a definition, including those nested in the schema of `object` fields.
+ * Lists every field of a definition, including those nested in `object` fields.
  *
  * @param definition The definition.
  *
@@ -97,7 +119,7 @@ export function readAllFields(definition: Definition) {
   const fields: Field[] = []
   const visit = (field: Field) => {
     fields.push(field)
-    readSchema(field.node).flatMap(group => group.fields).forEach(visit)
+    readGroups(field).flatMap(group => group.fields).forEach(visit)
   }
 
   readFields(definition).forEach(visit)
@@ -106,38 +128,7 @@ export function readAllFields(definition: Definition) {
 }
 
 /**
- * Reads the `schema` groups of a definition or an `object` field.
- *
- * @param owner The object with the `schema` property.
- *
- * @returns The groups.
- */
-function readSchema(owner: ObjectExpression): Group[] {
-  return objectElements(findProperty(owner, 'schema')).map(group => ({
-    node: group,
-    label: findStringProperty(group, 'label'),
-    fields: objectElements(findProperty(group, 'fields')).map(readField),
-  }))
-}
-
-/**
- * Reads a field's name, type and decorator role.
- *
- * @param node The field's object literal.
- *
- * @returns The field.
- */
-function readField(node: ObjectExpression): Field {
-  return {
-    node,
-    name: findStringProperty(node, 'name'),
-    type: findStringProperty(node, 'type')?.value,
-    as: findStringProperty(node, 'as')?.value,
-  }
-}
-
-/**
- * Finds the definer that files in a folder must call.
+ * Finds the definer that files of a kind must call.
  *
  * @param kind The kind of the file.
  *

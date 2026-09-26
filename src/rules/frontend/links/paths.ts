@@ -2,29 +2,12 @@ import type { Node } from 'estree'
 import type { AST } from 'vue-eslint-parser'
 
 import { defineRule } from '../../../lib/rule'
+import { nameOf } from '../../../utils/ast/chain'
+import { isHandBuiltPath } from '../../../utils/nuxt/routes'
 
-/** Attributes and properties that take a link target. */
 const LINK_NAMES = new Set(['to', 'href', 'link'])
 
-/** Calls that navigate to a path. */
 const NAVIGATE = new Set(['navigateTo', 'push', 'replace'])
-
-/**
- * Checks whether an expression builds an internal path by hand, e.g. `` `/hotels/${slug}` `` or `'/hotels/' + slug`.
- *
- * @param node The expression.
- *
- * @returns `true` for a path that starts with `/` and has variable parts, outside `/api/`.
- */
-function isHandBuilt(node: Node | null | undefined): boolean {
-  const start = node?.type === 'TemplateLiteral' && node.expressions.length > 0
-    ? node.quasis[0]?.value.cooked
-    : node?.type === 'BinaryExpression' && node.operator === '+' && node.left.type === 'Literal' && typeof node.left.value === 'string'
-      ? node.left.value
-      : undefined
-
-  return start !== undefined && start !== null && start.startsWith('/') && !start.startsWith('//') && !start.startsWith('/api/')
-}
 
 export default defineRule({
   meta: {
@@ -46,7 +29,7 @@ export default defineRule({
         const argument = node.directive && node.key.name.name === 'bind' ? node.key.argument : null
         const expression = node.directive ? node.value?.expression : undefined
 
-        if (argument?.type === 'VIdentifier' && LINK_NAMES.has(argument.name) && isHandBuilt(expression as Node | undefined)) {
+        if (argument?.type === 'VIdentifier' && LINK_NAMES.has(argument.name) && isHandBuiltPath(expression as Node | undefined)) {
           report({ node: expression as Node, messageId: 'path' })
         }
       },
@@ -54,17 +37,15 @@ export default defineRule({
 
     return {
       CallExpression: (node) => {
-        const { callee } = node
-        const name = callee.type === 'Identifier' ? callee.name : callee.type === 'MemberExpression' && callee.property.type === 'Identifier' ? callee.property.name : ''
         const [target] = node.arguments
 
-        if (NAVIGATE.has(name) && isHandBuilt(target)) {
+        if (NAVIGATE.has(nameOf(node.callee) ?? '') && isHandBuiltPath(target)) {
           report({ node: target!, messageId: 'path' })
         }
       },
 
       Property: (node) => {
-        if (node.key.type === 'Identifier' && LINK_NAMES.has(node.key.name) && isHandBuilt(node.value)) {
+        if (node.key.type === 'Identifier' && LINK_NAMES.has(node.key.name) && isHandBuiltPath(node.value)) {
           report({ node: node.value, messageId: 'path' })
         }
       },

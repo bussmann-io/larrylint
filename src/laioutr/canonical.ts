@@ -9,20 +9,18 @@ const TOKEN_ID = /define\w*Token\(\s*["'`]([a-z0-9-]+)\//g
 const cache = new Map<string, Set<string>>()
 
 /**
- * Lists the token namespaces of Laioutr's canonical types, read from the app's installed
- * `@laioutr-core/canonical-types`, so they match the version the app uses.
+ * Lists the token namespaces of the installed `@laioutr-core/canonical-types`.
  *
  * @param root Absolute path of the package root.
  *
  * @returns Namespaces like `ecommerce`, without the slash.
  *
- * @throws {Error} When the package isn't installed, since the namespaces can't be known without it.
+ * @throws {Error} When the package isn't installed.
  */
 export function canonicalNamespaces(root: string) {
   let namespaces = cache.get(root)
 
   if (!namespaces) {
-    // Apps usually get the package through frontend-core, which pnpm doesn't hoist to the root.
     const frontendCore = findPackage(root, '@laioutr-core/frontend-core')
     const folder = findPackage(root, PACKAGE) ?? (frontendCore && findPackage(frontendCore, PACKAGE))
 

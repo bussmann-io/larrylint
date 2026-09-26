@@ -1,6 +1,9 @@
+import type { AstNode, Edit } from './edit'
+
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { parseModule } from 'magicast'
 import { join } from 'pathe'
+import { appendItem } from './edit'
 
 const CONFIG_FILES = ['eslint.config.js', 'eslint.config.mjs', 'eslint.config.cjs', 'eslint.config.ts', 'eslint.config.mts', 'eslint.config.cts']
 
@@ -16,19 +19,6 @@ export default [
   // ...your config
   ...(await larrylint()),
 ]`
-
-interface AstNode {
-  type: string
-  start: number
-  end: number
-  [key: string]: any
-}
-
-interface Edit {
-  start: number
-  end: number
-  text: string
-}
 
 export interface WireResult {
   status: 'created' | 'updated' | 'present' | 'unknown'
@@ -125,7 +115,7 @@ export function addLarrylint(code: string): string | 'present' | 'unknown' {
  *
  * @returns `.append()` for a composer, otherwise a new array spreading both configs.
  */
-function extendBinding(body: AstNode[], identifier: AstNode, imports: { from: string, local: string }[]): Edit {
+export function extendBinding(body: AstNode[], identifier: AstNode, imports: { from: string, local: string }[]): Edit {
   const imported = imports.find(item => item.local === identifier.name)
   const declared = body.flatMap(node => node.type === 'VariableDeclaration' ? node.declarations as AstNode[] : []).find(declarator => declarator.id.name === identifier.name)
   const composer = imported ? COMPOSERS.test(imported.from) : declared?.init?.type === 'CallExpression' && isComposer(declared.init, imports)
@@ -143,7 +133,7 @@ function extendBinding(body: AstNode[], identifier: AstNode, imports: { from: st
  *
  * @returns `true` for e.g. `createConfigForNuxt(...).append(...)` or `antfu(...)`.
  */
-function isComposer(call: AstNode, imports: { from: string, local: string }[]) {
+export function isComposer(call: AstNode, imports: { from: string, local: string }[]) {
   let node = call
 
   while (node.callee.type === 'MemberExpression' && node.callee.object.type === 'CallExpression') {
@@ -153,35 +143,4 @@ function isComposer(call: AstNode, imports: { from: string, local: string }[]) {
   const factory = node.callee.type === 'Identifier' ? imports.find(item => item.local === node.callee.name) : undefined
 
   return factory ? COMPOSERS.test(factory.from) : false
-}
-
-/**
- * Appends an item to an array literal or call arguments, matching the surrounding line breaks.
- *
- * @param code The source of the config file.
- * @param container The array literal or call.
- * @param items Its elements or arguments.
- * @param text The code to append.
- *
- * @returns Where to insert what.
- */
-function appendItem(code: string, container: AstNode, items: AstNode[], text: string): Edit {
-  const closing = container.end - 1
-  const last = items.at(-1)
-  const insert = (at: number, insertion: string) => ({ start: at, end: at, text: insertion })
-
-  if (!last) {
-    return insert(closing, text)
-  }
-
-  if (!code.slice(container.start, container.end).includes('\n')) {
-    return insert(last.end, `, ${text}`)
-  }
-
-  const indent = code.slice(code.lastIndexOf('\n', last.start) + 1, last.start).match(/^[ \t]*/)![0]
-  const comma = code.indexOf(',', last.end)
-
-  return comma !== -1 && comma < closing
-    ? insert(comma + 1, `\n${indent}${text},`)
-    : insert(last.end, `,\n${indent}${text}`)
 }

@@ -1,7 +1,6 @@
 import { readDefinition, readFields } from '../../../laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 
-/** Names Vue consumes before they reach a component's props, see laioutr's forbidden-field-names reference. */
 const RESERVED = new Set(['style', 'class', 'key', 'ref', 'is', 'slot', 'refFor', 'refKey'])
 
 export default defineRule({

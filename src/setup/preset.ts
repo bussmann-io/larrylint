@@ -9,8 +9,7 @@ export interface LarrylintOptions {
 }
 
 /**
- * Creates the larrylint rules as ESLint flat config. The rules come without parsers,
- * so they run on top of the project's own config, e.g. `@nuxt/eslint-config`.
+ * Creates the larrylint rules as flat config, without parsers, to add to the project's own config.
  *
  * @param options Where to load the larrylint configuration from.
  *

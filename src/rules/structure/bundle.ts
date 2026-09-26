@@ -1,10 +1,6 @@
 import { defineRule } from '../../lib/rule'
 import { isTypeOnly } from '../../utils/ast/module'
 
-interface Options {
-  packages?: string[]
-}
-
 export default defineRule({
   meta: {
     type: 'problem',
@@ -28,7 +24,7 @@ export default defineRule({
   applies: file => file.kind === 'section' || file.kind === 'block' || file.kind === 'app-plugin',
 
   create: ({ context, report }) => {
-    const { packages = [] } = (context.options[0] ?? {}) as Options
+    const { packages = [] } = (context.options[0] ?? {}) as { packages?: string[] }
 
     return {
       ImportDeclaration: (node) => {

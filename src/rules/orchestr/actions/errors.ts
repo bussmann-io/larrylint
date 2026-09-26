@@ -1,30 +1,5 @@
-import type { Expression } from 'estree'
-
 import { defineRule } from '../../../lib/rule'
-import { findProperty } from '../../../utils/ast/object'
-
-/**
- * Reads the status code an error is created with, e.g. `createError({ status: 404 })`.
- *
- * @param error The thrown expression.
- *
- * @returns The status, or `undefined` if there's no literal one.
- */
-function thrownStatus(error: Expression) {
-  if (error.type !== 'CallExpression' && error.type !== 'NewExpression') {
-    return undefined
-  }
-
-  for (const argument of error.arguments) {
-    const status = argument.type === 'ObjectExpression' ? findProperty(argument, 'status') ?? findProperty(argument, 'statusCode') : undefined
-
-    if (status?.type === 'Literal' && typeof status.value === 'number') {
-      return status.value
-    }
-  }
-
-  return undefined
-}
+import { thrownStatus } from '../../../utils/nuxt/server'
 
 export default defineRule({
   meta: {

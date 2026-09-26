@@ -1,49 +1,6 @@
-import type { Expression, Node, ObjectExpression, Pattern, SpreadElement } from 'estree'
-
 import { defineRule } from '../../../lib/rule'
 import { findProperty } from '../../../utils/ast/object'
-
-/**
- * Lists the methods called along a chain, outermost first, e.g. `optional` and `nullable` for `z.string().nullable().optional()`.
- *
- * @param node The chain.
- *
- * @returns The method names.
- */
-function chainMethods(node: Node | undefined) {
-  const methods: string[] = []
-  let current = node
-
-  while (current?.type === 'CallExpression' && current.callee.type === 'MemberExpression' && current.callee.property.type === 'Identifier') {
-    methods.push(current.callee.property.name)
-    current = current.callee.object
-  }
-
-  return methods
-}
-
-/**
- * Finds the shape of a `z.object({ ... })` schema, also behind modifiers like `.strict()`.
- *
- * @param schema The schema expression.
- *
- * @returns The object literal with the fields, or `undefined`.
- */
-function objectShape(schema: Expression | Pattern | SpreadElement | undefined): ObjectExpression | undefined {
-  let current: Node | undefined = schema
-
-  while (current?.type === 'CallExpression' && current.callee.type === 'MemberExpression' && current.callee.property.type === 'Identifier') {
-    const [shape] = current.arguments
-
-    if (current.callee.property.name === 'object' && shape?.type === 'ObjectExpression') {
-      return shape
-    }
-
-    current = current.callee.object
-  }
-
-  return undefined
-}
+import { isNullable, objectShape } from '../../../utils/zod'
 
 export default defineRule({
   meta: {
@@ -68,7 +25,7 @@ export default defineRule({
       }
 
       for (const field of objectShape(findProperty(options, 'schema'))?.properties ?? []) {
-        if (field.type === 'Property' && chainMethods(field.value).some(method => method === 'nullable' || method === 'nullish')) {
+        if (field.type === 'Property' && isNullable(field.value)) {
           report({ node: field, messageId: 'nullable' })
         }
       }

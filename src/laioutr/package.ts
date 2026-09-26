@@ -2,6 +2,7 @@ import { join } from 'pathe'
 import { cachedReader } from '../utils/fs'
 
 export interface PackageInfo {
+  /** The name of the package, if specified. */
   name?: string
   /** Names of every dependency, including peer, dev and optional ones. */
   dependencies: Set<string>

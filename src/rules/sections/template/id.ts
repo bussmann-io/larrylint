@@ -2,6 +2,7 @@ import type { AST } from 'vue-eslint-parser'
 
 import { readDefinition } from '../../../laioutr/definition'
 import { defineRule } from '../../../lib/rule'
+import { findAttribute } from '../../../utils/vue/template'
 
 export default defineRule({
   meta: {
@@ -33,11 +34,7 @@ export default defineRule({
         }
 
         for (const root of template.children) {
-          const id = root.type === 'VElement'
-            ? root.startTag.attributes.find(attribute => attribute.directive
-                ? attribute.key.name.name === 'bind' && attribute.key.argument?.type === 'VIdentifier' && attribute.key.argument.name === 'id'
-                : attribute.key.name === 'id')
-            : undefined
+          const id = root.type === 'VElement' ? findAttribute(root, 'id') : undefined
 
           if (id) {
             report({ loc: id.loc, messageId: 'rootId' })

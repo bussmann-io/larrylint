@@ -5,7 +5,6 @@ import type { FileInfo } from '../laioutr/layout'
 import { classify } from '../laioutr/layout'
 import { readBaseline } from './baseline'
 
-/** Listeners for the nodes of a Vue `<template>`, keyed by selector like script listeners. */
 export type TemplateListener = Record<string, (node: never) => void>
 
 interface VueParserServices {
@@ -13,6 +12,7 @@ interface VueParserServices {
 }
 
 export interface RuleSetup {
+  /** The ESLint rule context. */
   context: Rule.RuleContext
   /** The linted file. */
   file: FileInfo
@@ -23,16 +23,16 @@ export interface RuleSetup {
 }
 
 export interface LarrylintRule {
+  /** The metadata for the rule, like its name, description and type. */
   meta: Rule.RuleMetaData
-  /** Whether the rule looks at a file. Tests and files outside `src/` are always skipped. */
+  /** Whether the rule checks a file; tests and files outside `src/` are always skipped. */
   applies: (file: FileInfo) => boolean
-  /** Returns the script listeners. `Program:exit` runs once the whole file, template included, is visited. */
+  /** Creates the script listeners; `Program:exit` runs after the template. */
   create: (setup: RuleSetup) => Rule.RuleListener
 }
 
 /**
- * Defines a larrylint rule. Reports only reach ESLint at the end of the file, once the file has
- * more violations of the rule than its baseline allows, like ESLint's own bulk suppressions.
+ * Defines a larrylint rule whose reports go through the baseline at the end of the file.
  *
  * @param rule The rule.
  *
@@ -80,7 +80,6 @@ export function defineRule(rule: LarrylintRule): Rule.RuleModule {
 
       const services = context.sourceCode.parserServices as VueParserServices | undefined
 
-      // vue-eslint-parser visits the template after the script's `Program:exit`, so finish on its root instead.
       if (template && program.templateBody && services?.defineTemplateBodyVisitor) {
         const { 'VElement:exit': elementExit, ...listener } = template
 

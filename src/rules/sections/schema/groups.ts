@@ -1,7 +1,6 @@
 import { readDefinition, readGroups } from '../../../laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 
-/** Studio's panels, in the order they appear. */
 const PANELS = ['Content', 'Design', 'Rules']
 
 export default defineRule({

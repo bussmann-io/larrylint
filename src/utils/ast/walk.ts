@@ -1,6 +1,5 @@
 import type { Node } from 'estree'
 
-/** Keys that point back up or hold positions, not child nodes. */
 const SKIPPED = new Set(['parent', 'loc', 'range', 'tokens', 'comments'])
 
 /**

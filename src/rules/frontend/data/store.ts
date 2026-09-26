@@ -1,6 +1,5 @@
 import { defineRule } from '../../../lib/rule'
 
-/** Vue components, as opposed to the composables, plugins and utils they use. */
 const COMPONENTS = new Set(['section', 'block', 'component', 'override'])
 
 export default defineRule({

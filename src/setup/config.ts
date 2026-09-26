@@ -2,14 +2,9 @@ import process from 'node:process'
 import { loadConfig } from 'c12'
 
 export interface LarrylintConfig {
-  /**
-   * Domains every other domain may import.
-   */
+  /** Domains every other domain may import. */
   sharedDomains?: string[]
-  /**
-   * Packages too heavy for the chunk every page loads, e.g. `leaflet`. Sections, blocks and
-   * plugins are registered globally, so they must load these with `import()`.
-   */
+  /** Packages too heavy for the chunk every page loads, e.g. `leaflet`. */
   heavyPackages?: string[]
 }
 

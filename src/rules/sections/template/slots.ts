@@ -2,17 +2,7 @@ import type { Rule } from 'eslint'
 import type { MemberExpression, Node } from 'estree'
 
 import { defineRule } from '../../../lib/rule'
-
-/**
- * Unwraps optional chaining, e.g. `a?.b()` to the call inside.
- *
- * @param node The expression.
- *
- * @returns The wrapped expression.
- */
-function unwrap(node: Node): Node {
-  return node.type === 'ChainExpression' ? node.expression : node
-}
+import { unwrap } from '../../../utils/ast/chain'
 
 export default defineRule({
   meta: {
@@ -31,13 +21,6 @@ export default defineRule({
   create: ({ report, visitTemplate }) => {
     const slotVariables = new Set(['slots', '$slots'])
 
-    /**
-     * Checks whether an expression holds a component's slots.
-     *
-     * @param node The expression.
-     *
-     * @returns `true` for `slots`, `$slots` and `useSlots()`.
-     */
     const isSlots = (node: Node) => (node.type === 'Identifier' && slotVariables.has(node.name)) || (node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === 'useSlots')
 
     const check = (node: MemberExpression) => {

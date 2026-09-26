@@ -2,12 +2,10 @@ import type { BinaryExpression, Expression, LogicalExpression, Node, PrivateIden
 
 import { readDefinition, readFields } from '../../../laioutr/definition'
 import { defineRule } from '../../../lib/rule'
-import { findPropsVariable } from '../../../utils/vue'
+import { findPropsVariable } from '../../../utils/vue/script'
 
-/** Field types definitionToProps types as Boolean, so an unset value arrives as `false`. */
 const FALSE_WHEN_UNSET = new Set(['checkbox', 'select', 'radio', 'toggle_button'])
 
-/** Field types Studio passes as `''` when unset. */
 const EMPTY_WHEN_UNSET = new Set(['text', 'textarea'])
 
 export default defineRule({
@@ -31,14 +29,6 @@ export default defineRule({
     const propsVariable = findPropsVariable(context.sourceCode.ast as Program)
     const reads: { node: Node, prop: string, check: string }[] = []
 
-    /**
-     * Tells which prop an expression reads: `props.x` in the script, `x` or `props.x` in the template.
-     *
-     * @param node The expression.
-     * @param template Whether the expression is in the template, where props are in scope by name.
-     *
-     * @returns The prop's name, or `undefined`.
-     */
     const propOf = (node: Expression | PrivateIdentifier, template: boolean) => {
       if (template && node.type === 'Identifier') {
         return node.name

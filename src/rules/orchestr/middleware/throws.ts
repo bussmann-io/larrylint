@@ -1,29 +1,10 @@
-import type { Identifier, Node, Program } from 'estree'
-import type { FunctionNode } from '../../../utils/ast/functions'
+import type { Identifier, Program } from 'estree'
 
 import { dirname, relative } from 'pathe'
 import { readMiddleware } from '../../../laioutr/orchestr'
 import { defineRule } from '../../../lib/rule'
-import { resolveCallee, walkBody } from '../../../utils/ast/functions'
-
-/**
- * Finds the first `throw` a function doesn't catch itself.
- *
- * @param fn The function.
- *
- * @returns The throw statement, or `undefined`.
- */
-function uncaughtThrow(fn: FunctionNode) {
-  let found: Node | undefined
-
-  walkBody(fn, (node, caught) => {
-    if (!found && !caught && node.type === 'ThrowStatement') {
-      found = node
-    }
-  })
-
-  return found
-}
+import { uncaughtThrow, walkBody } from '../../../utils/ast/functions'
+import { resolveCallee } from '../../../utils/ast/module'
 
 export default defineRule({
   meta: {

@@ -26,7 +26,6 @@ export default defineRule({
 
       const studio = findProperty(options, 'studio')
 
-      // A studio object built elsewhere can't be checked here.
       if (studio && studio.type !== 'ObjectExpression') {
         return
       }
