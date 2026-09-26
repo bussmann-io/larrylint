@@ -12,10 +12,12 @@ tsTester.run('public-config', rule, {
     { filename, code: module(`    nuxt.options.runtimeConfig.public[name] = nuxt.options.runtimeConfig[name].public ?? {}`) },
     { filename, code: module(`    nuxt.options.runtimeConfig.public[name] = defu(nuxt.options.runtimeConfig.public[name], options.public)`) },
     { filename, code: module(`    nuxt.options.runtimeConfig[name] = defu(nuxt.options.runtimeConfig[name], options)`) },
+    { filename, code: module(`    nuxt.options.runtimeConfig.public[name] = defu(nuxt.options.runtimeConfig.public[name], { storefrontOrigin: options.storefrontUrl ? new URL(options.storefrontUrl).origin : '' })`) },
+    { filename, code: module(`    nuxt.options.runtimeConfig.public.maps = { apiKey: options.maps.apiKey }`) },
   ],
 
   invalid: [
     { filename, code: module(`    nuxt.options.runtimeConfig.public[name] = defu(nuxt.options.runtimeConfig.public[name], options)`), errors: [{ messageId: 'options' }] },
-    { filename, code: module(`    nuxt.options.runtimeConfig.public.maps = { apiKey: options.maps.apiKey }`), errors: [{ messageId: 'options' }] },
+    { filename, code: module(`    nuxt.options.runtimeConfig.public[name] = { ...options, token: undefined }`), errors: [{ messageId: 'options' }] },
   ],
 })

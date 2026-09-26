@@ -16,7 +16,7 @@ vueTester.run('button-type', rule, {
       filename,
       code: `<template><l-button size="l" type="submit">Send</l-button></template>`,
       output: `<template><l-button size="l" button-type="submit">Send</l-button></template>`,
-      errors: [{ messageId: 'buttonType' }],
+      errors: [{ messageId: 'buttonType', data: { tag: 'l-button' } }],
     },
     {
       filename,
@@ -29,6 +29,18 @@ vueTester.run('button-type', rule, {
       code: `<template><l-button v-bind:type="kind">Send</l-button></template>`,
       output: `<template><l-button v-bind:button-type="kind">Send</l-button></template>`,
       errors: [{ messageId: 'buttonType' }],
+    },
+    {
+      filename,
+      code: `<template><l-icon-button type="submit" icon="send" /><LAnimatedButton type="submit">Send</LAnimatedButton></template>`,
+      output: `<template><l-icon-button button-type="submit" icon="send" /><LAnimatedButton button-type="submit">Send</LAnimatedButton></template>`,
+      errors: [{ messageId: 'buttonType', data: { tag: 'l-icon-button' } }, { messageId: 'buttonType', data: { tag: 'LAnimatedButton' } }],
+    },
+    {
+      filename,
+      code: `<script setup lang="ts">\nimport IconButton from '@laioutr-core/ui-kit/runtime/app/components/IconButton/IconButton.vue'\n</script>\n<template><IconButton type="submit" /></template>`,
+      output: `<script setup lang="ts">\nimport IconButton from '@laioutr-core/ui-kit/runtime/app/components/IconButton/IconButton.vue'\n</script>\n<template><IconButton button-type="submit" /></template>`,
+      errors: [{ messageId: 'buttonType', data: { tag: 'IconButton' } }],
     },
     {
       filename,

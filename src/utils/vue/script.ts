@@ -1,6 +1,8 @@
 import type { Rule } from 'eslint'
 import type { Expression, Identifier, Node, Pattern, Program, SpreadElement } from 'estree'
 
+import type { FunctionNode } from '../ast/functions'
+
 import { isFunction } from '../ast/functions'
 import { findImport } from '../ast/module'
 import { resolveModule } from '../fs'
@@ -77,29 +79,32 @@ export function usedProps(node: Identifier & { parent: Node }): string[] | undef
  *
  * @param node The value.
  *
- * @returns The variable's name and whether it's a computed ref, or `undefined`.
+ * @returns The variable's name, whether it's a computed ref, and the function that returns the value, or `undefined`.
  */
 export function findHolder(node: Rule.Node) {
   let value = node
+  let fn: FunctionNode | undefined
   const { parent } = node
 
   if (parent?.type === 'ReturnStatement') {
-    let fn: Rule.Node | null = parent.parent
+    let current: Rule.Node | null = parent.parent
 
-    while (fn && !isFunction(fn)) {
-      fn = fn.parent
+    while (current && !isFunction(current)) {
+      current = current.parent
     }
 
-    value = fn ?? value
+    fn = current as FunctionNode | null ?? undefined
+    value = current ?? value
   }
   else if (parent && isFunction(parent) && parent.body === node) {
+    fn = parent
     value = parent
   }
 
   const computed = value.parent?.type === 'CallExpression' && value.parent.callee.type === 'Identifier' && value.parent.callee.name === 'computed' ? value.parent : undefined
   const declarator = (computed ?? value).parent
 
-  return declarator?.type === 'VariableDeclarator' && declarator.id.type === 'Identifier' ? { name: declarator.id.name, computed: computed !== undefined } : undefined
+  return declarator?.type === 'VariableDeclarator' && declarator.id.type === 'Identifier' ? { name: declarator.id.name, computed: computed !== undefined, fn } : undefined
 }
 
 /**

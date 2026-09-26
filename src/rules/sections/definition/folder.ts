@@ -12,7 +12,7 @@ export default defineRule({
     },
     schema: [],
     messages: {
-      notDefined: 'Laioutr registers every .vue in {{folder}}/ as a Studio {{kind}}, but this file has no {{definer}}(). Move it to components/.',
+      notDefined: 'Laioutr loads every .vue in {{folder}}/ as a {{kind}}, but this file has no {{definer}}(), so frontend-core warns about it. Move it to components/.',
       wrongFolder: '{{definer}}() belongs in app/{{folder}}/.',
     },
   },

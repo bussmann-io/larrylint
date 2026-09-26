@@ -37,7 +37,7 @@ vueTester.run('mutation-errors', rule, {
     {
       filename,
       code: block(`function add(item) {\n  try {\n    addToCart.mutateAsync([item]).then(refresh)\n  }\n  catch {}\n}`),
-      errors: [{ messageId: 'unhandled' }],
+      errors: [{ messageId: 'dropped' }],
     },
     {
       filename,

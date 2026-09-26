@@ -2,7 +2,7 @@ import type { Rule } from 'eslint'
 import type { Identifier, Literal, Node, Program } from 'estree'
 import type { AST } from 'vue-eslint-parser'
 
-import { readDefinition, readFields } from '../../../laioutr/definition'
+import { conditionFields, readDefinition, readFields } from '../../../laioutr/definition'
 import { slotProps } from '../../../laioutr/slots'
 import { defineRule } from '../../../lib/rule'
 import { isReference } from '../../../utils/ast/values'
@@ -29,6 +29,7 @@ export default defineRule({
     const used = new Set<string>()
     const propsVariable = findPropsVariable(context.sourceCode.ast as Program)
     let hasProps = false
+    let block = false
     let escapes = false
 
     const track = (node: Identifier & { parent: Node }) => {
@@ -62,7 +63,14 @@ export default defineRule({
 
         const definition = readDefinition(node)
 
-        for (const { name, type, as } of definition ? readFields(definition) : []) {
+        if (!definition) {
+          return
+        }
+
+        block ||= definition.definer === 'defineBlock'
+        conditionFields(definition).forEach(name => used.add(name))
+
+        for (const { name, type, as } of readFields(definition)) {
           if (name && !as && !NOT_READ.has(type ?? '')) {
             fields.set(name.value, name.node)
           }
@@ -83,10 +91,14 @@ export default defineRule({
         }
 
         const unused = [...fields].filter(([name]) => !used.has(name))
-        const readBySection = unused.length > 0 && file.kind === 'block' ? slotProps(file.root) : new Set<string>()
+        const readBySection = unused.length > 0 && block ? slotProps(file.root) : undefined
+
+        if (readBySection?.all) {
+          return
+        }
 
         for (const [name, node] of unused) {
-          if (!readBySection.has(name)) {
+          if (!readBySection?.names.has(name)) {
             report({ node, messageId: 'unused', data: { name } })
           }
         }

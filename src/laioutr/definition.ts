@@ -1,14 +1,21 @@
-import type { CallExpression, Literal, ObjectExpression } from 'estree'
+import type { CallExpression, Literal, ObjectExpression, Program } from 'estree'
 import type { Kind } from './layout'
 
+import { unwrap } from '../utils/ast/chain'
+import { resolveConstant } from '../utils/ast/module'
 import { findProperty, findStringProperty, objectElements } from '../utils/ast/object'
+import { walk } from '../utils/ast/walk'
 
 export const DEFINERS = {
-  defineSection: { kind: 'section', folder: 'sections', prefix: 'Section' },
-  defineBlock: { kind: 'block', folder: 'blocks', prefix: 'Block' },
+  defineSection: { kind: 'section', folder: 'sections' },
+  defineBlock: { kind: 'block', folder: 'blocks' },
 } as const
 
 export type Definer = keyof typeof DEFINERS
+
+const PICKERS = new Set(['select', 'radio', 'toggle_button'])
+
+const TEXTS = new Set(['text', 'textarea', 'secret'])
 
 export interface Definition {
   /** The called definer, e.g. `defineSection`. */
@@ -35,8 +42,6 @@ export interface Field {
 export interface Group {
   /** The group's object literal. */
   node: ObjectExpression
-  /** The group's `label`, if it's a string literal. */
-  label?: { value: string, node: Literal }
   /** The group's fields. */
   fields: Field[]
 }
@@ -76,7 +81,6 @@ export function readGroups(owner: Definition | Field): Group[] {
 
   return objectElements(node && findProperty(node, 'schema')).map(group => ({
     node: group,
-    label: findStringProperty(group, 'label'),
     fields: objectElements(findProperty(group, 'fields')).map(readField),
   }))
 }
@@ -128,6 +132,33 @@ export function readAllFields(definition: Definition) {
 }
 
 /**
+ * Lists the fields that `if` conditions read, e.g. `showHeading` in `if: ['get', 'showHeading']`.
+ *
+ * @param definition The definition.
+ *
+ * @returns The field names.
+ */
+export function conditionFields(definition: Definition) {
+  const names = new Set<string>()
+
+  for (const field of readAllFields(definition)) {
+    const condition = findProperty(field.node, 'if')
+
+    if (condition) {
+      walk(condition, (node) => {
+        const [operator, name] = node.type === 'ArrayExpression' ? node.elements : []
+
+        if (operator?.type === 'Literal' && operator.value === 'get' && name?.type === 'Literal' && typeof name.value === 'string') {
+          names.add(name.value.split('.')[0]!)
+        }
+      })
+    }
+  }
+
+  return names
+}
+
+/**
  * Finds the definer that files of a kind must call.
  *
  * @param kind The kind of the file.
@@ -136,4 +167,46 @@ export function readAllFields(definition: Definition) {
  */
 export function expectedDefiner(kind: Kind | undefined) {
   return (Object.keys(DEFINERS) as Definer[]).find(definer => DEFINERS[definer].kind === kind)
+}
+
+/**
+ * Reads the value frontend-core fills an unset field with, e.g. `''` for text or a select's first option.
+ *
+ * @param field The field.
+ * @param program The module with the definition, to find options declared elsewhere.
+ * @param filename Absolute path of that module.
+ *
+ * @returns The value, or `undefined` if the field has no fill value or its options can't be read.
+ */
+export function fillValue(field: Field, program: Program, filename: string): { value: Literal['value'] } | undefined {
+  if (field.type === 'checkbox') {
+    return { value: field.as === 'visibility' }
+  }
+
+  if (TEXTS.has(field.type ?? '')) {
+    return { value: '' }
+  }
+
+  if (field.type === 'content_alignment') {
+    const axis = findStringProperty(field.node, 'axis')?.value
+
+    return { value: !axis || axis === 'both' ? 'center-center' : 'center' }
+  }
+
+  if (!PICKERS.has(field.type ?? '')) {
+    return undefined
+  }
+
+  const property = findProperty(field.node, 'options')
+  const declared = property?.type === 'Identifier' ? resolveConstant(property.name, program, filename) : property
+  let options = declared && unwrap(declared)
+
+  if (options?.type === 'CallExpression') {
+    options = options.arguments[0]
+  }
+
+  const first = options?.type === 'ArrayExpression' ? options.elements[0] : undefined
+  const value = first?.type === 'ObjectExpression' ? findProperty(first, 'value') : first
+
+  return value?.type === 'Literal' ? { value: value.value } : undefined
 }

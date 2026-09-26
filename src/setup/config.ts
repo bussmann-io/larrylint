@@ -2,8 +2,6 @@ import process from 'node:process'
 import { loadConfig } from 'c12'
 
 export interface LarrylintConfig {
-  /** Domains every other domain may import. */
-  sharedDomains?: string[]
   /** Packages too heavy for the chunk every page loads, e.g. `leaflet`. */
   heavyPackages?: string[]
 }
@@ -21,7 +19,7 @@ export interface LarrylintConfig {
  * import { defineLarrylintConfig } from 'larrylint'
  *
  * export default defineLarrylintConfig({
- *   sharedDomains: ['product'],
+ *   heavyPackages: ['leaflet'],
  * })
  * ```
  */
@@ -47,7 +45,6 @@ export async function loadLarrylintConfig(cwd = process.cwd()): Promise<Required
   })
 
   return {
-    sharedDomains: config.sharedDomains ?? [],
     heavyPackages: config.heavyPackages ?? [],
   }
 }

@@ -1,4 +1,4 @@
-import type { CallExpression, Directive, ExportAllDeclaration, ExportNamedDeclaration, ImportDeclaration, ModuleDeclaration, Node, Program, Statement } from 'estree'
+import type { CallExpression, Directive, ExportAllDeclaration, ExportNamedDeclaration, Expression, ImportDeclaration, ModuleDeclaration, Node, Program, Statement } from 'estree'
 import type { FunctionNode } from './functions'
 
 import { resolveModule } from '../fs'
@@ -95,6 +95,55 @@ export function findFunction(statements: (Statement | ModuleDeclaration | Direct
   }
 
   return undefined
+}
+
+/**
+ * Finds the value a constant is declared with at the top level of a module.
+ *
+ * @param statements The module's statements.
+ * @param name The constant's name.
+ *
+ * @returns The initializer, or `undefined`.
+ */
+export function findConstant(statements: (Statement | ModuleDeclaration | Directive)[], name: string): Expression | undefined {
+  for (const statement of statements) {
+    const declaration = statement.type === 'ExportNamedDeclaration' && statement.declaration ? statement.declaration : statement
+
+    if (declaration.type !== 'VariableDeclaration' || declaration.kind !== 'const') {
+      continue
+    }
+
+    const declarator = declaration.declarations.find(item => item.id.type === 'Identifier' && item.id.name === name)
+
+    if (declarator?.init) {
+      return declarator.init
+    }
+  }
+
+  return undefined
+}
+
+/**
+ * Finds the value a constant is declared with, in the same module or exported from a relative import.
+ *
+ * @param name The constant's local name.
+ * @param program The module that uses it.
+ * @param filename Absolute path of that module.
+ *
+ * @returns The initializer, or `undefined` if it can't be found.
+ */
+export function resolveConstant(name: string, program: Program, filename: string) {
+  const local = findConstant(program.body, name)
+
+  if (local) {
+    return local
+  }
+
+  const imported = findImport(program, name)
+  const file = imported && imported.name !== '*' ? resolveModule(filename, imported.source) : undefined
+  const module = file ? parseFile(file) : undefined
+
+  return module && imported ? findConstant(module.body, imported.name) : undefined
 }
 
 /**

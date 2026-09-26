@@ -1,19 +1,27 @@
 import type { Rule } from 'eslint'
+import type { HandlerType } from '../../laioutr/layout'
 
-import { inMiddleware } from '../../laioutr/orchestr'
+import { enclosingMiddleware } from '../../laioutr/orchestr'
 import { defineRule } from '../../lib/rule'
-import { responseEffect } from '../../utils/nuxt/server'
+import { responseWrite } from '../../utils/nuxt/server'
+
+const STREAMED = new Set<HandlerType | undefined>(['query', 'link', 'resolver'])
+
+const MANAGED: Record<string, string> = {
+  setCookie: 'setManagedCookie',
+  deleteCookie: 'deleteManagedCookie',
+}
 
 export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow Set-Cookie and redirects from orchestr handlers and middleware, which cached pages replay to every visitor.',
+      description: 'Write cookies and headers only where orchestr allows it: in extendRequest() and action handlers, with frontend-core\'s managed cookie functions.',
     },
     schema: [],
     messages: {
-      cookie: 'ISR caches this response for every visitor, Set-Cookie included, so one visitor\'s cookie reaches the next. Set cookies from an API route or a Nitro middleware that skips cached pages.',
-      redirect: 'ISR caches this redirect for every visitor. Redirect from an API route or on the client instead.',
+      streamed: 'Orchestr may have sent the response headers by the time {{name}}() runs here, so the browser never gets it. Write cookies and headers in extendRequest() or an action handler.',
+      managed: 'Use {{managed}}() instead. It applies Laioutr\'s cookie policy, which the Studio preview needs (SameSite=None and Partitioned), and {{name}}() skips it.',
     },
   },
 
@@ -21,10 +29,20 @@ export default defineRule({
 
   create: ({ file, report }) => ({
     CallExpression: (node) => {
-      const effect = responseEffect(node)
+      const write = responseWrite(node)
 
-      if (effect && (file.kind === 'handler' || inMiddleware(node as Rule.Node))) {
-        report({ node, messageId: effect })
+      if (!write) {
+        return
+      }
+
+      const method = enclosingMiddleware(node as Rule.Node)?.method
+      const managed = MANAGED[write.name]
+
+      if (method === 'use' || (!method && STREAMED.has(file.handler))) {
+        report({ node, messageId: 'streamed', data: { name: write.name } })
+      }
+      else if (managed && (method === 'extendRequest' || (!method && file.handler === 'action'))) {
+        report({ node, messageId: 'managed', data: { name: write.name, managed } })
       }
     },
   }),

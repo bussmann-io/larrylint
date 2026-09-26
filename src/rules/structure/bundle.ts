@@ -17,7 +17,7 @@ export default defineRule({
       },
     ],
     messages: {
-      heavy: 'Laioutr registers sections, blocks and plugins globally, so \'{{name}}\' lands in the chunk every page loads. Load it with import() or defineAsyncComponent() instead.',
+      heavy: 'frontend-core imports every section and block up front, and plugins run on every page, so \'{{name}}\' lands in the chunk every page loads. Load it with import() or defineAsyncComponent() instead.',
     },
   },
 

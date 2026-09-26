@@ -9,7 +9,7 @@ export default defineRule({
     },
     schema: [],
     messages: {
-      canonical: '\'{{namespace}}/\' belongs to Laioutr\'s canonical types. Put your own tokens under your app\'s namespace; otherwise registration order decides which handler wins.',
+      canonical: '\'{{namespace}}/\' belongs to Laioutr\'s canonical types, and a later canonical-types release or another app can take this id. Token metadata is last-write-wins, so put your own tokens under your app\'s namespace.',
     },
   },
 

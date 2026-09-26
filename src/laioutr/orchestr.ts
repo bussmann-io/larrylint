@@ -1,9 +1,8 @@
 import type { Rule } from 'eslint'
-import type { ArrowFunctionExpression, CallExpression, FunctionExpression, Literal, Node, ObjectExpression } from 'estree'
+import type { ArrowFunctionExpression, CallExpression, FunctionExpression } from 'estree'
 
 import { chainRoot } from '../utils/ast/chain'
-import { isFunction, walkBody } from '../utils/ast/functions'
-import { findStringProperty } from '../utils/ast/object'
+import { isFunction } from '../utils/ast/functions'
 
 export interface Middleware {
   /** `extendRequest` runs before every query; `use` wraps the handlers built with the builder. */
@@ -38,67 +37,20 @@ export function readMiddleware(call: CallExpression): Middleware | undefined {
 }
 
 /**
- * Reads the `app` of a builder's `.meta({ app })` call.
- *
- * @param call Any call expression.
- *
- * @returns The app name and its node, or `undefined` for other calls.
- */
-export function readMetaApp(call: CallExpression): { value: string, node: Literal } | undefined {
-  const { callee } = call
-  const [options] = call.arguments
-
-  if (callee.type !== 'MemberExpression' || callee.property.type !== 'Identifier' || callee.property.name !== 'meta' || chainRoot(callee.object)?.name !== 'defineOrchestr' || options?.type !== 'ObjectExpression') {
-    return undefined
-  }
-
-  return findStringProperty(options, 'app')
-}
-
-/**
- * Checks whether a node runs inside an orchestr middleware callback.
+ * Finds the orchestr middleware whose callback a node runs in.
  *
  * @param node The node.
  *
- * @returns `true` inside `extendRequest(fn)` or a builder's `use(fn)`.
+ * @returns The middleware, or `undefined` outside `extendRequest(fn)` and a builder's `use(fn)`.
  */
-export function inMiddleware(node: Rule.Node) {
+export function enclosingMiddleware(node: Rule.Node): Middleware | undefined {
   for (let parent = node.parent; parent; parent = parent.parent) {
-    if (isFunction(parent) && parent.parent?.type === 'CallExpression' && readMiddleware(parent.parent)?.callback === parent) {
-      return true
+    const middleware = isFunction(parent) && parent.parent?.type === 'CallExpression' ? readMiddleware(parent.parent) : undefined
+
+    if (middleware?.callback === parent) {
+      return middleware
     }
   }
 
-  return false
-}
-
-/**
- * Lists the objects a component resolver returns, e.g. `{ ... }` in `base: () => ({ ... })`.
- *
- * @param value The component's value in `$entity({ ... })`.
- *
- * @returns The object literals it returns.
- */
-export function componentObjects(value: Node): ObjectExpression[] {
-  if (value.type === 'ObjectExpression') {
-    return [value]
-  }
-
-  if (!isFunction(value)) {
-    return []
-  }
-
-  if (value.body.type === 'ObjectExpression') {
-    return [value.body]
-  }
-
-  const objects: ObjectExpression[] = []
-
-  walkBody(value, (node) => {
-    if (node.type === 'ReturnStatement' && node.argument?.type === 'ObjectExpression') {
-      objects.push(node.argument)
-    }
-  })
-
-  return objects
+  return undefined
 }

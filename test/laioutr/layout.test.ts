@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { classify } from '../../src/laioutr/layout'
 
 describe('classify', () => {
-  it('finds handlers, their domain and plugins in orchestr/', () => {
-    expect(classify('/app/src/runtime/server/orchestr/ticketing/Order.query.ts')).toMatchObject({ root: '/app', path: 'src/runtime/server/orchestr/ticketing/Order.query.ts', side: 'server', kind: 'handler', domain: 'ticketing' })
-    expect(classify('/app/src/runtime/server/orchestr/Brunch.resolver.ts')).toMatchObject({ kind: 'handler', domain: undefined })
+  it('finds handlers and plugins in orchestr/', () => {
+    expect(classify('/app/src/runtime/server/orchestr/ticketing/Order.query.ts')).toMatchObject({ root: '/app', path: 'src/runtime/server/orchestr/ticketing/Order.query.ts', side: 'server', kind: 'handler', handler: 'query' })
+    expect(classify('/app/src/runtime/server/orchestr/Brunch.resolver.ts')).toMatchObject({ kind: 'handler', handler: 'resolver' })
+    expect(classify('/app/src/runtime/server/orchestr/blog/bySlug.templates.ts')).toMatchObject({ kind: 'handler', handler: 'template' })
     expect(classify('/app/src/runtime/server/orchestr/Brunch.query')).toMatchObject({ kind: 'handler' })
     expect(classify('/app/src/runtime/server/orchestr/plugins/zodFix.ts')).toMatchObject({ kind: 'orchestr-plugin' })
     expect(classify('/app/src/runtime/server/orchestr/helpers.ts')).toMatchObject({ kind: 'orchestr-file' })
   })
 
-  it('finds server layers and util domains', () => {
-    expect(classify('/app/src/runtime/server/utils/ticketing/checkout.ts')).toMatchObject({ kind: 'server-util', domain: 'ticketing' })
-    expect(classify('/app/src/runtime/server/utils/mapAsset.ts')).toMatchObject({ kind: 'server-util', domain: undefined })
+  it('finds server layers', () => {
+    expect(classify('/app/src/runtime/server/utils/ticketing/checkout.ts')).toMatchObject({ kind: 'server-util' })
     expect(classify('/app/src/runtime/server/middleware/hygraph.ts')).toMatchObject({ kind: 'middleware' })
     expect(classify('/app/src/runtime/server/client/shopware.ts')).toMatchObject({ kind: 'client' })
     expect(classify('/app/src/runtime/server/api/tickets/status.get.ts')).toMatchObject({ kind: 'route' })
@@ -26,6 +26,8 @@ describe('classify', () => {
   it('finds app layers and shared code', () => {
     expect(classify('/app/src/runtime/app/sections/SectionHero.vue')).toMatchObject({ side: 'app', kind: 'section' })
     expect(classify('/app/src/runtime/app/blocks/account/BlockProfile.vue')).toMatchObject({ kind: 'block' })
+    expect(classify('/app/src/runtime/app/section/SectionHeroSlider.vue')).toMatchObject({ kind: 'section' })
+    expect(classify('/app/src/runtime/app/block/BlockPlanCard.vue')).toMatchObject({ kind: 'block' })
     expect(classify('/app/src/runtime/app/components/Card.vue')).toMatchObject({ kind: 'component' })
     expect(classify('/app/src/runtime/app/composables/useCart.ts')).toMatchObject({ kind: 'composable' })
     expect(classify('/app/src/runtime/app/utils/format.ts')).toMatchObject({ kind: 'app-util' })

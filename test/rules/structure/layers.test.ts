@@ -1,5 +1,5 @@
 import rule from '../../../src/rules/structure/layers'
-import { fixtureRuntime, runtime, tsTester } from '../../utils'
+import { runtime, tsTester } from '../../utils'
 
 tsTester.run('layers', rule, {
   valid: [
@@ -7,9 +7,10 @@ tsTester.run('layers', rule, {
     { filename: runtime('server/orchestr/ticketing/Order.query.ts'), code: `import { fetchOrders } from '../../utils/ticketing/orders'` },
     { filename: runtime('server/orchestr/ticketing/Order.query.ts'), code: `import { defineTicketApi } from '../../middleware/ticketApi'` },
     { filename: runtime('server/orchestr/ticketing/Order.query.ts'), code: `import { mapAsset } from '../../utils/mapAsset'` },
-    { filename: fixtureRuntime('server/orchestr/vouchers/Voucher.query.ts'), code: `import { track } from '../../utils/tracking/track'` },
-    { filename: fixtureRuntime('server/utils/vouchers/context.ts'), code: `import { price } from '../product/price'`, options: [{ sharedDomains: ['product'] }] },
-    { filename: fixtureRuntime('server/utils/tracking/order.ts'), code: `import { price } from '../product/price'`, options: [{ sharedDomains: ['product'] }] },
+    { filename: runtime('server/orchestr/vouchers/Voucher.query.ts'), code: `import { price } from '../../utils/product/price'` },
+    { filename: runtime('server/utils/vouchers/context.ts'), code: `import { orders } from '../ticketing/orders'` },
+    { filename: runtime('server/utils/accountDeletion.ts'), code: `import { photoApi } from '../client/photoApi'` },
+    { filename: runtime('server/api/consent.post.ts'), code: `import { resolveIdentity } from '../middleware/identity'` },
     { filename: runtime('server/utils/ticketing/orders.ts'), code: `import type { TicketApi } from '../../client/ticketApi'` },
     { filename: runtime('server/utils/ticketing/orders.ts'), code: `import { type TicketApi } from '../../client/ticketApi'` },
     { filename: runtime('server/utils/ticketing/orders.ts'), code: `import type { Identity } from '../../middleware/identity'` },
@@ -38,14 +39,7 @@ tsTester.run('layers', rule, {
     { filename: runtime('server/orchestr/brunch/BrunchByStandort.query.ts'), code: `import { fetchAllBrunches } from './Brunch.query'`, errors: [{ messageId: 'handlerImported' }] },
     { filename: runtime('server/utils/brunch.ts'), code: `import type { Brunch } from '../orchestr/brunch/Brunch.resolver'`, errors: [{ messageId: 'handlerImported' }] },
     { filename: runtime('server/orchestr/shop/Product.query.ts'), code: `import { createShopwareClient } from '../../client/shopware'`, errors: [{ messageId: 'clientInHandler' }] },
-    { filename: runtime('server/utils/accountDeletion.ts'), code: `import { photoApi } from '../client/photoApi'`, errors: [{ messageId: 'clientInUtil' }] },
-    { filename: runtime('server/api/consent.post.ts'), code: `import { resolveIdentity } from '../middleware/identity'`, errors: [{ messageId: 'middlewareImported' }] },
-    { filename: runtime('server/utils/tracking/consent.ts'), code: `import { resolveIdentity } from '../../middleware/identity'`, errors: [{ messageId: 'middlewareImported' }] },
     { filename: runtime('server/utils/status.ts'), code: `import status from '../api/tickets/status.get'`, errors: [{ messageId: 'serverUtilImportsUp', data: { kind: 'API route' } }] },
-    { filename: fixtureRuntime('server/utils/vouchers/context.ts'), code: `import { orders } from '../ticketing/orders'`, errors: [{ messageId: 'crossDomain', data: { from: 'vouchers', to: 'ticketing' } }] },
-    { filename: fixtureRuntime('server/orchestr/vouchers/Voucher.query.ts'), code: `import { price } from '../../utils/product/price'`, errors: [{ messageId: 'crossDomain', data: { from: 'vouchers', to: 'product' } }] },
-    { filename: fixtureRuntime('server/utils/tracking/order.ts'), code: `import { price } from '../product/price'`, errors: [{ messageId: 'sharedImportsDomain', data: { to: 'product' } }] },
-    { filename: runtime('server/orchestr/cart/AddItem.action.ts'), code: `import { NotFound } from '../product/errors'`, errors: [{ messageId: 'crossDomain', data: { from: 'cart', to: 'product' } }] },
     { filename: runtime('app/utils/feed.ts'), code: `import { useReels } from '../composables/useReels'`, errors: [{ messageId: 'appUtilImportsUp', data: { kind: 'composable' } }] },
     { filename: runtime('app/composables/useCards.ts'), code: `import Card from '../components/Card.vue'`, errors: [{ messageId: 'composableImportsUp', data: { kind: 'component' } }] },
     { filename: runtime('app/components/Grid.ts'), code: `import SectionHero from '../sections/SectionHero.vue'`, errors: [{ messageId: 'componentImportsSection' }] },

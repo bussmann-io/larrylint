@@ -1,6 +1,7 @@
 import type { Rule } from 'eslint'
 import type { ArrowFunctionExpression, FunctionDeclaration, FunctionExpression, Node } from 'estree'
 
+import { canBeNullish } from './values'
 import { children } from './walk'
 
 export type FunctionNode = FunctionDeclaration | FunctionExpression | ArrowFunctionExpression
@@ -101,4 +102,28 @@ export function isCaught(node: Rule.Node) {
   }
 
   return false
+}
+
+/**
+ * Checks whether a function can return `undefined` or `null`, leaving out one value it returns.
+ *
+ * @param fn The function.
+ * @param value The returned value to leave out.
+ *
+ * @returns `true` if another return is empty or nullish, or the function can end without one.
+ */
+export function canReturnNullish(fn: FunctionNode, value: Node) {
+  if (fn.body.type !== 'BlockStatement') {
+    return fn.body !== value && canBeNullish(fn.body)
+  }
+
+  let nullish = false
+
+  walkBody(fn, (node) => {
+    nullish ||= node.type === 'ReturnStatement' && node.argument !== value && (!node.argument || canBeNullish(node.argument))
+  })
+
+  const last = fn.body.body.at(-1)
+
+  return nullish || (last?.type !== 'ReturnStatement' && last?.type !== 'ThrowStatement')
 }

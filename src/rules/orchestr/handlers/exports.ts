@@ -5,12 +5,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require handler files to export their handler as default, and nothing else.',
+      description: 'Require handler files to export their handler as default.',
     },
     schema: [],
     messages: {
-      namedExport: 'Handler files only export their handler. Laioutr registers the default export; move everything else to server/utils/.',
-      missingDefault: 'Handler files export their handler as default, otherwise laioutr registers nothing.',
+      missingDefault: 'Laioutr loads every file in orchestr/ as a Nitro plugin from its default export, so without one the build fails. Export the handler as default.',
     },
   },
 
@@ -24,24 +23,8 @@ export default defineRule({
         hasDefault = true
       },
 
-      'ExportNamedDeclaration': (node) => {
-        const others = node.specifiers.filter((specifier) => {
-          const name = specifier.exported.type === 'Identifier' ? specifier.exported.name : specifier.exported.value
-
-          if (name === 'default') {
-            hasDefault = true
-          }
-
-          return name !== 'default'
-        })
-
-        if (node.declaration || others.length > 0) {
-          report({ node, messageId: 'namedExport' })
-        }
-      },
-
-      'ExportAllDeclaration': (node) => {
-        report({ node, messageId: 'namedExport' })
+      'ExportSpecifier': (node) => {
+        hasDefault ||= (node.exported.type === 'Identifier' ? node.exported.name : node.exported.value) === 'default'
       },
 
       'Program:exit': () => {

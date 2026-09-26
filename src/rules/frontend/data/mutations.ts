@@ -13,14 +13,15 @@ export default defineRule({
     },
     schema: [],
     messages: {
-      unhandled: 'If this mutation fails, frontend-core replaces the whole section or block with its "Retry" state. Catch the error here with try/catch or .catch().',
+      unhandled: 'If this mutation fails, frontend-core replaces the whole section or block with its "Retry" state, unless every caller catches the error. Catch it here with try/catch or .catch().',
+      dropped: 'Nothing handles this promise, so a failed mutation ends up as an unhandled rejection without any feedback. Catch it with try/catch or .catch().',
     },
   },
 
   applies: file => file.side === 'app',
 
   create: ({ report, visitTemplate }) => {
-    const check = (call: CallExpression) => {
+    const check = (call: CallExpression, template: boolean) => {
       if (nameOf(call.callee) !== 'mutateAsync') {
         return
       }
@@ -39,11 +40,11 @@ export default defineRule({
         return
       }
 
-      report({ node: call.callee.type === 'MemberExpression' ? call.callee.property : call.callee, messageId: 'unhandled' })
+      report({ node: call.callee.type === 'MemberExpression' ? call.callee.property : call.callee, messageId: dropped && !template ? 'dropped' : 'unhandled' })
     }
 
-    visitTemplate({ CallExpression: check })
+    visitTemplate({ CallExpression: (node: CallExpression) => check(node, true) })
 
-    return { CallExpression: check }
+    return { CallExpression: node => check(node, false) }
   },
 })

@@ -1,5 +1,4 @@
 import { normalize } from 'pathe'
-import { isDirectory } from '../utils/fs'
 
 export type Side = 'app' | 'server' | 'shared' | 'build' | 'other'
 
@@ -38,18 +37,18 @@ export interface FileInfo {
   kind?: Kind
   /** Type of an orchestr handler, e.g. `action` for `Order.action.ts`. */
   handler?: HandlerType
-  /** Domain folder of a handler or server util, e.g. `ticketing`. */
-  domain?: string
   /** Whether the file is a test, e.g. `foo.test.ts`. */
   test: boolean
 }
 
-const HANDLER_FILE = /\.(query|resolver|link|action|template|page-index)(?:\.[cm]?[jt]s)?$/
+const HANDLER_FILE = /\.(query|resolver|link|action|templates?|page-index)(?:\.[cm]?[jt]s)?$/
 const TEST_FILE = /\.(?:test|spec)\.[cm]?[jt]sx?$/
 
 const APP_FOLDERS: Record<string, Kind> = {
   'sections': 'section',
+  'section': 'section',
   'blocks': 'block',
+  'block': 'block',
   'components': 'component',
   'composables': 'composable',
   'utils': 'app-util',
@@ -75,7 +74,7 @@ const SERVER_FOLDERS: Record<string, Kind> = {
  *
  * @param file Absolute path of the file, or of an import target without extension.
  *
- * @returns The file's side, kind and domain, or `undefined` for files outside `src/`.
+ * @returns The file's side and kind, or `undefined` for files outside `src/`.
  */
 export function classify(file: string): FileInfo | undefined {
   const absolute = normalize(file)
@@ -102,28 +101,13 @@ export function classify(file: string): FileInfo | undefined {
 }
 
 /**
- * Finds a file's domain; a server/utils/ folder only is one if orchestr/ has a folder of that name.
- *
- * @param file The classified file.
- *
- * @returns The domain, or `undefined` for code every domain may use.
- */
-export function domainOf(file: FileInfo) {
-  if (!file.domain || file.kind === 'handler' || file.kind === 'orchestr-file') {
-    return file.domain
-  }
-
-  return isDirectory(`${file.root}/src/runtime/server/orchestr/${file.domain}`) ? file.domain : undefined
-}
-
-/**
  * Classifies a path below `src/runtime/`.
  *
  * @param parts The path segments below `src/runtime/`.
  *
- * @returns The side, kind and domain of the file.
+ * @returns The side and kind of the file.
  */
-export function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'handler' | 'domain'> {
+export function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'handler'> {
   const [side, folder = '', ...rest] = parts
 
   if (parts.length < 2 || (side !== 'app' && side !== 'server' && side !== 'shared')) {
@@ -138,19 +122,15 @@ export function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind'
     return { side, kind: APP_FOLDERS[folder] ?? 'other' }
   }
 
-  const nested = rest.length > 1
-
   if (folder === 'orchestr') {
-    if (nested && rest[0] === 'plugins') {
+    if (rest.length > 1 && rest[0] === 'plugins') {
       return { side, kind: 'orchestr-plugin' }
     }
 
-    const handler = HANDLER_FILE.exec(parts.at(-1)!)?.[1] as HandlerType | undefined
+    const handler = HANDLER_FILE.exec(parts.at(-1)!)?.[1]?.replace('templates', 'template') as HandlerType | undefined
 
-    return { side, kind: handler ? 'handler' : 'orchestr-file', handler, domain: nested ? rest[0] : undefined }
+    return { side, kind: handler ? 'handler' : 'orchestr-file', handler }
   }
 
-  const kind = SERVER_FOLDERS[folder] ?? 'other'
-
-  return { side, kind, domain: kind === 'server-util' && nested ? rest[0] : undefined }
+  return { side, kind: SERVER_FOLDERS[folder] ?? 'other' }
 }

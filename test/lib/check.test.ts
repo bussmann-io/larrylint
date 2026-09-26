@@ -22,12 +22,14 @@ describe('check', () => {
     const { results, violations } = await check(cwd)
 
     expect(reported(cwd, results)).toEqual({
-      'src/runtime/app/sections/ContactFormSection.vue': ['larrylint/definition-prefix', 'larrylint/button-type'],
-      'src/runtime/server/orchestr/Brunch.query.ts': ['larrylint/handler-domains', 'larrylint/handler-exports'],
-      'src/runtime/server/utils/vouchers/context.ts': ['larrylint/layers'],
+      'src/runtime/app/composables/useVoucher.ts': ['larrylint/layers'],
+      'src/runtime/app/sections/ContactFormSection.vue': ['larrylint/button-type'],
+      'src/runtime/app/sections/SectionMap.vue': ['larrylint/heavy-imports'],
+      'src/runtime/server/orchestr/brunch/Brunch.query.ts': ['larrylint/handler-exports'],
+      'src/runtime/server/utils/tracking/track.ts': ['larrylint/config-keys'],
     })
 
-    expect(violations['src/runtime/server/orchestr/Brunch.query.ts']).toEqual({ 'larrylint/handler-domains': 1, 'larrylint/handler-exports': 1 })
+    expect(violations['src/runtime/server/utils/tracking/track.ts']).toEqual({ 'larrylint/config-keys': 1 })
   })
 
   it('hides baselined violations until a file gets more of them', async () => {
@@ -38,18 +40,18 @@ describe('check', () => {
     expect(reported(cwd, clean.results)).toEqual({})
     expect(clean.baselined).toBe(5)
 
-    appendFileSync(join(cwd, 'src/runtime/server/orchestr/Brunch.query.ts'), `\nexport const extra = 1\n`)
+    appendFileSync(join(cwd, 'src/runtime/server/utils/tracking/track.ts'), `\nexport const shop = () => useRuntimeConfig()['@laioutr-app/shopware']\n`)
 
     const dirty = await check(cwd)
 
     expect(reported(cwd, dirty.results)).toEqual({
-      'src/runtime/server/orchestr/Brunch.query.ts': ['larrylint/handler-exports', 'larrylint/handler-exports'],
+      'src/runtime/server/utils/tracking/track.ts': ['larrylint/config-keys', 'larrylint/config-keys'],
     })
   })
 
   it('counts baseline entries that got better', async () => {
     writeBaseline(cwd, (await check(cwd)).violations)
-    writeFileSync(join(cwd, 'src/runtime/server/utils/vouchers/context.ts'), `export const context = () => []\n`)
+    writeFileSync(join(cwd, 'src/runtime/app/composables/useVoucher.ts'), `export const useVoucher = () => []\n`)
 
     const { improved, results } = await check(cwd)
 

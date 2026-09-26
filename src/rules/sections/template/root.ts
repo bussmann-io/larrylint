@@ -7,6 +7,8 @@ import { parseVueFile } from '../../../utils/vue/parse'
 import { importedComponent } from '../../../utils/vue/script'
 import { renderedRoots } from '../../../utils/vue/template'
 
+const OWN_ATTRS = /inheritAttrs\s*:\s*false/
+
 export default defineRule({
   meta: {
     type: 'problem',
@@ -34,7 +36,7 @@ export default defineRule({
         const program = context.sourceCode.ast as AST.ESLintProgram
         const template = program.templateBody
 
-        if (!defined || !template) {
+        if (!defined || !template || OWN_ATTRS.test(context.sourceCode.text)) {
           return
         }
 
@@ -50,7 +52,7 @@ export default defineRule({
         const component = file ? parseVueFile(file) : undefined
         const componentTemplate = component?.ast.templateBody
 
-        if (root && componentTemplate && renderedRoots(componentTemplate).length > 1 && !/inheritAttrs\s*:\s*false/.test(component.text)) {
+        if (root && componentTemplate && renderedRoots(componentTemplate).length > 1 && !OWN_ATTRS.test(component.text)) {
           report({ loc: root.startTag.loc, messageId: 'componentRoots', data: { name: root.rawName } })
         }
       },

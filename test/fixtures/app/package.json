@@ -5,6 +5,6 @@
     "larrylint": "*"
   },
   "larrylint": {
-    "sharedDomains": ["product"]
+    "heavyPackages": ["leaflet"]
   }
 }

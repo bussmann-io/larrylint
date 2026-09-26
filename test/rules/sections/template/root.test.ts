@@ -14,6 +14,7 @@ vueTester.run('single-root', rule, {
     { filename, code: section(`  <OneRoot />`, `import OneRoot from '../components/OneRoot.vue'`) },
     { filename, code: section(`  <TwoRootsForwarding />`, `import TwoRootsForwarding from '../components/TwoRootsForwarding.vue'`) },
     { filename: runtime('app/components/Menu.vue'), code: `<template>\n  <nav />\n  <aside />\n</template>` },
+    { filename, code: section(`  <section>Menu</section>\n  <MenuSheet :open="open" />`, `defineOptions({ inheritAttrs: false })`) },
   ],
 
   invalid: [

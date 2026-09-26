@@ -20,6 +20,17 @@ export function isReference(node: Identifier & { parent?: Node | null }) {
 }
 
 /**
+ * Checks whether an expression is `undefined` or `null`.
+ *
+ * @param node The expression.
+ *
+ * @returns `true` for the `undefined` identifier and the `null` literal.
+ */
+export function isNullish(node: Node) {
+  return (node.type === 'Identifier' && node.name === 'undefined') || (node.type === 'Literal' && node.value === null && !('regex' in node))
+}
+
+/**
  * Checks whether a value can be `undefined` or `null`, also through `??` or a branch.
  *
  * @param value The value.
@@ -27,7 +38,7 @@ export function isReference(node: Identifier & { parent?: Node | null }) {
  * @returns `true` for e.g. `undefined`, `x ?? null` or `a ? b : undefined`.
  */
 export function canBeNullish(value: Expression | Pattern): boolean {
-  if ((value.type === 'Identifier' && value.name === 'undefined') || (value.type === 'Literal' && value.value === null && !('regex' in value))) {
+  if (isNullish(value)) {
     return true
   }
 

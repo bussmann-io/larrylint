@@ -1,3 +1,5 @@
 export function track(event: string) {
-  return event
+  const shopware = useRuntimeConfig()['@laioutr-app/shopware']
+
+  return { event, shopware }
 }

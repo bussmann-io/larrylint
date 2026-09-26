@@ -10,7 +10,7 @@ export default defineRule({
     },
     schema: [],
     messages: {
-      description: 'Studio shows studio.description in its section and block picker. Add one.',
+      description: 'Studio shows studio.description in its section picker, and AI agents read it through Laioutr\'s MCP server. Add one.',
     },
   },
 

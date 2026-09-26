@@ -24,7 +24,7 @@ export interface LarrylintOptions {
  * ```
  */
 export async function larrylint(options: LarrylintOptions = {}): Promise<Linter.Config[]> {
-  const { sharedDomains, heavyPackages } = await loadLarrylintConfig(options.cwd)
+  const { heavyPackages } = await loadLarrylintConfig(options.cwd)
 
   return [
     {
@@ -33,7 +33,6 @@ export async function larrylint(options: LarrylintOptions = {}): Promise<Linter.
       plugins: { larrylint: plugin },
       rules: {
         ...Object.fromEntries(Object.keys(plugin.rules).map(id => [`larrylint/${id}`, 'error'] as const)),
-        'larrylint/layers': ['error', { sharedDomains }],
         'larrylint/heavy-imports': ['error', { packages: heavyPackages }],
       },
     },

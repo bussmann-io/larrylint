@@ -7,7 +7,9 @@ import { BASELINE_FILE, writeBaseline } from '../../src/lib/baseline'
 import { plugin } from '../../src/setup/plugin'
 import { copyFixture } from '../utils'
 
-const HANDLER = 'src/runtime/server/orchestr/Brunch.query.ts'
+const UTIL = 'src/runtime/server/utils/tracking/track.ts'
+
+const KEY = `useRuntimeConfig()['@laioutr-app/shopware']`
 
 describe('baseline', () => {
   let cwd: string
@@ -21,19 +23,19 @@ describe('baseline', () => {
       files: ['**/*.ts'],
       languageOptions: { parser: tsParser },
       plugins: { larrylint: plugin },
-      rules: { 'larrylint/handler-exports': 'error' },
+      rules: { 'larrylint/config-keys': 'error' },
       settings,
     }]
 
-    return new Linter({ cwd }).verify(code, config, join(cwd, HANDLER))
+    return new Linter({ cwd }).verify(code, config, join(cwd, UTIL))
   }
 
   it('lets rules skip what the baseline covers', () => {
-    writeBaseline(cwd, { [HANDLER]: { 'larrylint/handler-exports': 1 } })
+    writeBaseline(cwd, { [UTIL]: { 'larrylint/config-keys': 1 } })
 
-    expect(lint('export const a = 1\nexport default handler')).toEqual([])
-    expect(lint('export const a = 1\nexport const b = 2\nexport default handler')).toHaveLength(2)
-    expect(lint('export const a = 1\nexport default handler', { larrylint: { baseline: false } })).toHaveLength(1)
+    expect(lint(`export const a = ${KEY}`)).toEqual([])
+    expect(lint(`export const a = ${KEY}\nexport const b = ${KEY}`)).toHaveLength(2)
+    expect(lint(`export const a = ${KEY}`, { larrylint: { baseline: false } })).toHaveLength(1)
   })
 
   it('writes sorted entries and removes an empty baseline', () => {

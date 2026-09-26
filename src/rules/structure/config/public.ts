@@ -2,7 +2,7 @@ import type { Rule } from 'eslint'
 import type { Identifier } from 'estree'
 
 import { defineRule } from '../../../lib/rule'
-import { memberPath, nameOf } from '../../../utils/ast/chain'
+import { memberPath } from '../../../utils/ast/chain'
 import { isReference } from '../../../utils/ast/values'
 import { walk } from '../../../utils/ast/walk'
 import { setupOptions } from '../../../utils/nuxt/config'
@@ -15,7 +15,7 @@ export default defineRule({
     },
     schema: [],
     messages: {
-      options: 'runtimeConfig.public reaches the browser, and with it every token or secret among the module options. Copy only the options meant to be public.',
+      options: 'runtimeConfig.public reaches the browser, and with it every token or secret among the module options. Copy only the options meant to be public, e.g. options.storefrontUrl.',
     },
   },
 
@@ -37,9 +37,8 @@ export default defineRule({
         }
 
         const { parent } = child as Identifier & Rule.NodeParentExtension
-        const publicOnly = parent.type === 'MemberExpression' && parent.object === child && nameOf(parent) === 'public'
 
-        if (!publicOnly) {
+        if (parent.type !== 'MemberExpression' || parent.object !== child) {
           report({ node: child, messageId: 'options' })
         }
       })

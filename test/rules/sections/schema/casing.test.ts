@@ -10,17 +10,17 @@ function fields(list: string) {
 vueTester.run('field-name-case', rule, {
   valid: [
     { filename, code: fields(`[{ name: 'heading', type: 'text' }, { name: 'showCta', type: 'checkbox' }, { name: 'columns2', type: 'number' }]`) },
+    { filename, code: fields(`[{ name: 'emptyTickets_openTicketDrawer', type: 'checkbox' }, { name: 'Heading', type: 'text' }]`) },
     { filename, code: fields(`[{ name: 'cta', type: 'object', schema: [{ fields: [{ name: 'link-target', type: 'text' }] }] }]`) },
   ],
 
   invalid: [
     {
       filename,
-      code: fields(`[{ name: 'show-heading', type: 'checkbox' }, { name: 'emptyTickets_openTicketDrawer', type: 'checkbox' }, { name: 'Heading', type: 'text' }]`),
+      code: fields(`[{ name: 'show-heading', type: 'checkbox' }, { name: '$variant', type: 'select' }]`),
       errors: [
-        { messageId: 'casing', data: { suggestion: 'showHeading' } },
-        { messageId: 'casing', data: { suggestion: 'emptyTicketsOpenTicketDrawer' } },
-        { messageId: 'casing', data: { suggestion: 'heading' } },
+        { messageId: 'hyphen', data: { name: 'show-heading', suggestion: 'showHeading' } },
+        { messageId: 'dollar', data: { name: '$variant' } },
       ],
     },
   ],

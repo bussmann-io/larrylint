@@ -10,18 +10,6 @@ export function kebabCase(name: string) {
 }
 
 /**
- * Puts a prefix in front of a name, moving it there if the name ends with it.
- *
- * @param name The name, e.g. `ContactFormSection`.
- * @param prefix The prefix, e.g. `Section`.
- *
- * @returns The prefixed name, e.g. `SectionContactForm`.
- */
-export function prefixName(name: string, prefix: string) {
-  return `${prefix}${name.endsWith(prefix) ? name.slice(0, -prefix.length) : name}`
-}
-
-/**
  * Turns a dash-case, snake_case or PascalCase name into camelCase.
  *
  * @param name The name, e.g. `show-heading`.

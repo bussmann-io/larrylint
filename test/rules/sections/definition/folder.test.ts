@@ -7,6 +7,8 @@ vueTester.run('definition-folder', rule, {
     { filename: runtime('app/blocks/account/BlockProfile.vue'), code: withDefinition(`defineBlock({ component: 'BlockProfile', schema: [] })`) },
     { filename: runtime('app/overrides/SectionProductDetail.vue'), code: withDefinition(`defineSection({ component: 'SectionProductDetail', schema: [] })`) },
     { filename: runtime('app/components/Card.vue'), code: `<template><div /></template>` },
+    { filename: runtime('app/section/SectionHeroSlider.vue'), code: withDefinition(`defineSection({ component: 'SectionHeroSlider', schema: [] })`) },
+    { filename: runtime('app/block/BlockPlanCard.vue'), code: withDefinition(`defineBlock({ component: 'BlockPlanCard', schema: [] })`) },
   ],
 
   invalid: [

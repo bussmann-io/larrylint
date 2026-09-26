@@ -42,25 +42,6 @@ export function chainRoot(node: Expression | Super): Identifier | undefined {
 }
 
 /**
- * Lists the methods called along a chain, outermost first, e.g. `nullable`, `string` for `z.string().nullable()`.
- *
- * @param node The chain.
- *
- * @returns The method names.
- */
-export function chainMethods(node: Node | undefined) {
-  const methods: string[] = []
-  let current = node
-
-  while (current?.type === 'CallExpression' && current.callee.type === 'MemberExpression' && current.callee.property.type === 'Identifier') {
-    methods.push(current.callee.property.name)
-    current = current.callee.object
-  }
-
-  return methods
-}
-
-/**
  * Lists the names along a member chain, e.g. `nuxt`, `options` for `nuxt.options`.
  *
  * @param node The member expression.

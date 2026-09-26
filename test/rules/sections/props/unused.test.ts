@@ -18,6 +18,9 @@ vueTester.run('unused-fields', rule, {
     { filename, code: component(fields, `const props = defineProps(definitionToProps(definition))\nconst state = useHero(props)`) },
     { filename, code: component(`[{ name: 'headingInfo', type: 'info' }, { name: 'products', type: 'query' }, { name: 'headingStyle', type: 'object', as: 'style', for: 'heading' }]`, `const props = defineProps(definitionToProps(definition))`) },
     { filename: fixtureRuntime('app/blocks/BlockTab.vue', 'components'), code: `<script lang="ts">\nexport const definition = defineBlock({ component: 'BlockTab', schema: [{ label: 'Content', fields: [{ name: 'slug', type: 'text' }, { name: 'tabLabel', type: 'text' }] }] })\n</script>\n\n<script setup lang="ts">\nconst props = defineProps(definitionToProps(definition))\n</script>\n\n<template><slot /></template>\n` },
+    { filename, code: component(`[{ name: 'showCta', type: 'checkbox' }, { name: 'cta', type: 'text', if: ['get', 'showCta'] }]`, `const props = defineProps(definitionToProps(definition))`, `<a>{{ props.cta }}</a>`) },
+    { filename: fixtureRuntime('app/block/BlockQuote.vue', 'components'), code: `<script lang="ts">\nexport const definition = defineBlock({ component: 'BlockQuote', schema: [{ label: 'Content', fields: [{ name: 'starRating', type: 'number' }, { name: 'author', type: 'text' }] }] })\n</script>\n\n<script setup lang="ts">\nconst props = defineProps(definitionToProps(definition))\n</script>\n\n<template><slot /></template>\n` },
+    { filename: fixtureRuntime('app/blocks/BlockItem.vue', 'spread'), code: `<script lang="ts">\nexport const definition = defineBlock({ component: 'BlockItem', schema: [{ label: 'Content', fields: [{ name: 'badge', type: 'text' }] }] })\n</script>\n\n<script setup lang="ts">\nconst props = defineProps(definitionToProps(definition))\n</script>\n` },
   ],
 
   invalid: [
@@ -30,6 +33,11 @@ vueTester.run('unused-fields', rule, {
       filename: fixtureRuntime('app/blocks/BlockCard.vue', 'components'),
       code: `<script lang="ts">\nexport const definition = defineBlock({ component: 'BlockCard', schema: [{ label: 'Content', fields: [{ name: 'slug', type: 'text' }, { name: 'badge', type: 'text' }] }] })\n</script>\n\n<script setup lang="ts">\nconst props = defineProps(definitionToProps(definition))\n</script>\n`,
       errors: [{ messageId: 'unused', data: { name: 'badge' } }],
+    },
+    {
+      filename: fixtureRuntime('app/block/BlockQuote.vue', 'components'),
+      code: `<script lang="ts">\nexport const definition = defineBlock({ component: 'BlockQuote', schema: [{ label: 'Content', fields: [{ name: 'author', type: 'text' }, { name: 'quoteColor', type: 'color' }] }] })\n</script>\n\n<script setup lang="ts">\nconst props = defineProps(definitionToProps(definition))\n</script>\n`,
+      errors: [{ messageId: 'unused', data: { name: 'quoteColor' } }],
     },
   ],
 })

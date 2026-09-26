@@ -20,9 +20,11 @@ describe('init', () => {
 
     expect(readFileSync(join(cwd, 'eslint.config.mjs'), 'utf8')).toBe(NEW_ESLINT_CONFIG)
     expect(JSON.parse(readFileSync(join(cwd, BASELINE_FILE), 'utf8'))).toEqual({
-      'src/runtime/app/sections/ContactFormSection.vue': { 'larrylint/button-type': 1, 'larrylint/definition-prefix': 1 },
-      'src/runtime/server/orchestr/Brunch.query.ts': { 'larrylint/handler-domains': 1, 'larrylint/handler-exports': 1 },
-      'src/runtime/server/utils/vouchers/context.ts': { 'larrylint/layers': 1 },
+      'src/runtime/app/composables/useVoucher.ts': { 'larrylint/layers': 1 },
+      'src/runtime/app/sections/ContactFormSection.vue': { 'larrylint/button-type': 1 },
+      'src/runtime/app/sections/SectionMap.vue': { 'larrylint/heavy-imports': 1 },
+      'src/runtime/server/orchestr/brunch/Brunch.query.ts': { 'larrylint/handler-exports': 1 },
+      'src/runtime/server/utils/tracking/track.ts': { 'larrylint/config-keys': 1 },
     })
   })
 
