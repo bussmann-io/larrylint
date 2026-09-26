@@ -7,5 +7,6 @@ dist
 *.log*
 *.env
 
-# Fixture apps need their own packages.
+# Fixture apps need their own packages, dist/ included.
 !test/fixtures/*/node_modules
+!test/fixtures/*/node_modules/**/dist
