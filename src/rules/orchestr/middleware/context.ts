@@ -8,11 +8,14 @@ import { walk } from '../../../utils/ast/walk'
 
 const COOKIE_READERS = new Set(['getCookie', 'parseCookies', 'useCookie'])
 
+/** Context keys for sessions and identities, which authenticated calls need and which aren't page content. */
+const SESSION_KEY = /token|session|identity|auth|jwt|login|credential/i
+
 export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow putting cookie values into the orchestr context, since cached query results don\'t vary by them.',
+      description: 'Disallow putting cookie values into the orchestr context, since cached query results don\'t vary by them. Sessions and identities are fine.',
     },
     schema: [],
     messages: {
@@ -89,6 +92,10 @@ export default defineRule({
           }
 
           for (const property of child.value.properties) {
+            if (property.type === 'Property' && property.key.type === 'Identifier' && SESSION_KEY.test(property.key.name)) {
+              continue
+            }
+
             const value = property.type === 'Property' ? property.value as Expression : property
 
             if ((value.type === 'Identifier' && tainted.has((value as Identifier).name)) || fromCookie(value)) {

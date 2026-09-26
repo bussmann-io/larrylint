@@ -25,8 +25,8 @@ export function runtime(path: string) {
   return `/app/src/runtime/${path}`
 }
 
-export function fixtureRuntime(path: string) {
-  return join(import.meta.dirname, 'fixtures/app/src/runtime', path)
+export function fixtureRuntime(path: string, app = 'app') {
+  return join(import.meta.dirname, 'fixtures', app, 'src/runtime', path)
 }
 
 export function copyFixture() {
