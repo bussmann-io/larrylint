@@ -1,0 +1,7 @@
+{
+  "name": "fixture-components",
+  "private": true,
+  "dependencies": {
+    "@laioutr/app-shopware": "*"
+  }
+}
