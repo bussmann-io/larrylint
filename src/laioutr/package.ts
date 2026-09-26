@@ -1,5 +1,5 @@
 import { join } from 'pathe'
-import { readFileCached } from '../utils/fs'
+import { cachedReader } from '../utils/fs'
 
 export interface PackageInfo {
   name?: string
@@ -15,6 +15,15 @@ interface PackageJson {
   optionalDependencies?: Record<string, string>
 }
 
+const readPackageFile = cachedReader((text): PackageInfo => {
+  const json = JSON.parse(text) as PackageJson
+
+  return {
+    name: json.name,
+    dependencies: new Set([json.dependencies, json.devDependencies, json.peerDependencies, json.optionalDependencies].flatMap(deps => Object.keys(deps ?? {}))),
+  }
+})
+
 /**
  * Reads the package.json of a Laioutr app, cached until it changes.
  *
@@ -23,12 +32,5 @@ interface PackageJson {
  * @returns The package's name and dependencies, or `undefined` without a package.json.
  */
 export function readPackage(root: string) {
-  return readFileCached(join(root, 'package.json'), (text): PackageInfo => {
-    const json = JSON.parse(text) as PackageJson
-
-    return {
-      name: json.name,
-      dependencies: new Set([json.dependencies, json.devDependencies, json.peerDependencies, json.optionalDependencies].flatMap(deps => Object.keys(deps ?? {}))),
-    }
-  })
+  return readPackageFile(join(root, 'package.json'))
 }

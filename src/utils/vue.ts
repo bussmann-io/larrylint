@@ -3,7 +3,7 @@ import type { AST } from 'vue-eslint-parser'
 
 import tsParser from '@typescript-eslint/parser'
 import { parse } from 'vue-eslint-parser'
-import { readFileCached } from './fs'
+import { cachedReader } from './fs'
 
 /**
  * Finds the variable that holds a component's props, e.g. `props` in `const props = defineProps(...)`.
@@ -64,13 +64,11 @@ export function renderedRoots(template: AST.VElement) {
  *
  * @returns The AST and the source, or `undefined` if the file is missing or doesn't parse.
  */
-export function parseVueFile(path: string) {
-  return readFileCached(path, (text) => {
-    try {
-      return { ast: parse(text, { parser: tsParser, sourceType: 'module', ecmaVersion: 'latest' }), text }
-    }
-    catch {
-      return undefined
-    }
-  })
-}
+export const parseVueFile = cachedReader((text) => {
+  try {
+    return { ast: parse(text, { parser: tsParser, sourceType: 'module', ecmaVersion: 'latest' }), text }
+  }
+  catch {
+    return undefined
+  }
+})

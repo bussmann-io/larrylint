@@ -6,37 +6,39 @@ const EXTENSIONS = ['', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '/index.ts
 
 const directories = new Map<string, boolean>()
 
-const files = new Map<string, { mtimeMs: number, value: unknown }>()
-
 /**
- * Reads and parses a file, cached until the file changes.
+ * Creates a reader that parses files and caches the result until a file changes. Each reader
+ * has its own cache, so the same file can be read by different readers.
  *
- * @param path Absolute path of the file.
- * @param parse Turns the file's text into a value.
+ * @param parse Turns a file's text into a value.
  *
- * @returns The parsed value, or `undefined` if the file doesn't exist.
+ * @returns A function that reads a file by its absolute path, `undefined` if it doesn't exist.
  */
-export function readFileCached<T>(path: string, parse: (text: string) => T): T | undefined {
-  let mtimeMs: number
+export function cachedReader<T>(parse: (text: string) => T) {
+  const cache = new Map<string, { mtimeMs: number, value: T }>()
 
-  try {
-    mtimeMs = statSync(path).mtimeMs
+  return (path: string): T | undefined => {
+    let mtimeMs: number
+
+    try {
+      mtimeMs = statSync(path).mtimeMs
+    }
+    catch {
+      return undefined
+    }
+
+    const cached = cache.get(path)
+
+    if (cached?.mtimeMs === mtimeMs) {
+      return cached.value
+    }
+
+    const value = parse(readFileSync(path, 'utf8'))
+
+    cache.set(path, { mtimeMs, value })
+
+    return value
   }
-  catch {
-    return undefined
-  }
-
-  const cached = files.get(path)
-
-  if (cached?.mtimeMs === mtimeMs) {
-    return cached.value as T
-  }
-
-  const value = parse(readFileSync(path, 'utf8'))
-
-  files.set(path, { mtimeMs, value })
-
-  return value
 }
 
 /**

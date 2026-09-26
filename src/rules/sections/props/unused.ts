@@ -3,8 +3,15 @@ import type { Identifier, Literal, Node, Program } from 'estree'
 import type { AST } from 'vue-eslint-parser'
 
 import { readDefinition, readFields } from '../../../laioutr/definition'
+import { slotProps } from '../../../laioutr/slots'
 import { defineRule } from '../../../lib/rule'
 import { findPropsVariable, isDefineProps } from '../../../utils/vue'
+
+/**
+ * Field types the component doesn't read itself: `info` and `separator` only show something in
+ * Studio, and a `query` also tells Studio which data to load, e.g. for a context the block reads.
+ */
+const NOT_READ = new Set(['info', 'separator', 'query'])
 
 /**
  * Checks whether an identifier is only a name, e.g. `props` in `x.props` or `{ props: x }`.
@@ -60,7 +67,7 @@ export default defineRule({
 
   applies: file => file.side === 'app' && file.path.endsWith('.vue'),
 
-  create: ({ context, report, visitTemplate }) => {
+  create: ({ context, file, report, visitTemplate }) => {
     const fields = new Map<string, Literal>()
     const used = new Set<string>()
     const propsVariable = findPropsVariable(context.sourceCode.ast as Program)
@@ -98,9 +105,9 @@ export default defineRule({
 
         const definition = readDefinition(node)
 
-        for (const { name, as } of definition ? readFields(definition) : []) {
+        for (const { name, type, as } of definition ? readFields(definition) : []) {
           // Style and visibility decorators are applied by frontend-core, not read by the component.
-          if (name && !as) {
+          if (name && !as && !NOT_READ.has(type ?? '')) {
             fields.set(name.value, name.node)
           }
         }
@@ -119,8 +126,12 @@ export default defineRule({
           return
         }
 
-        for (const [name, node] of fields) {
-          if (!used.has(name)) {
+        const unused = [...fields].filter(([name]) => !used.has(name))
+        // Sections read the props of their blocks through a slot, e.g. `block.props.slug`.
+        const readBySection = unused.length > 0 && file.kind === 'block' ? slotProps(file.root) : new Set<string>()
+
+        for (const [name, node] of unused) {
+          if (!readBySection.has(name)) {
             report({ node, messageId: 'unused', data: { name } })
           }
         }
