@@ -1,7 +1,7 @@
 import type { Program } from 'estree'
 import type { AST } from 'vue-eslint-parser'
 
-import { readDefinition } from '../../../laioutr/definition'
+import { DEFINERS, readDefinition } from '../../../laioutr/definition'
 import { defineRule } from '../../../lib/rule'
 import { parseVueFile } from '../../../utils/vue/parse'
 import { importedComponent } from '../../../utils/vue/script'
@@ -13,37 +13,39 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require sections and blocks to render one root element, which carries frontend-core\'s data-lfc-* markers.',
+      description: 'Require sections and blocks to render one root element',
     },
     schema: [],
     messages: {
-      roots: 'frontend-core adds its data-lfc-* markers to the root element of a section or block, and Vue drops them when there\'s more than one root. Wrap the content in one element.',
-      componentRoots: '<{{name}}> renders more than one root element, so Vue drops the data-lfc-* markers frontend-core adds to this section or block. Give {{name}} one root, or wrap it here.',
+      roots: 'Studio can\'t select a {{kind}} with more than one root element. Wrap the content in one element.',
+      componentRoots: '<{{name}}> has more than one root element, so Studio can\'t select this {{kind}}. Give it one root, or wrap it here.',
     },
   },
 
   applies: file => file.side === 'app' && file.path.endsWith('.vue'),
 
   create: ({ context, report }) => {
-    let defined = false
+    let kind: string | undefined
 
     return {
       'CallExpression': (node) => {
-        defined ||= readDefinition(node) !== undefined
+        const definition = readDefinition(node)
+
+        kind ??= definition && DEFINERS[definition.definer].kind
       },
 
       'Program:exit': () => {
         const program = context.sourceCode.ast as AST.ESLintProgram
         const template = program.templateBody
 
-        if (!defined || !template || OWN_ATTRS.test(context.sourceCode.text)) {
+        if (!kind || !template || OWN_ATTRS.test(context.sourceCode.text)) {
           return
         }
 
         const [root, second] = renderedRoots(template)
 
         if (second) {
-          report({ loc: second.startTag.loc, messageId: 'roots' })
+          report({ loc: second.startTag.loc, messageId: 'roots', data: { kind } })
 
           return
         }
@@ -53,7 +55,7 @@ export default defineRule({
         const componentTemplate = component?.ast.templateBody
 
         if (root && componentTemplate && renderedRoots(componentTemplate).length > 1 && !OWN_ATTRS.test(component.text)) {
-          report({ loc: root.startTag.loc, messageId: 'componentRoots', data: { name: root.rawName } })
+          report({ loc: root.startTag.loc, messageId: 'componentRoots', data: { name: root.rawName, kind } })
         }
       },
     }

@@ -5,7 +5,7 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow static imports of heavy packages in sections, blocks and plugins, which every page loads.',
+      description: 'Disallow static imports of heavy packages in sections, blocks and plugins',
     },
     schema: [
       {
@@ -17,7 +17,7 @@ export default defineRule({
       },
     ],
     messages: {
-      heavy: 'frontend-core imports every section and block up front, and plugins run on every page, so \'{{name}}\' lands in the chunk every page loads. Load it with import() or defineAsyncComponent() instead.',
+      heavy: 'This loads \'{{name}}\' on every page. Load it with import() or defineAsyncComponent() instead.',
     },
   },
 

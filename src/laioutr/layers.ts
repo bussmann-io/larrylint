@@ -6,17 +6,17 @@ export interface Violation {
 }
 
 const LABELS: Partial<Record<Kind, string>> = {
-  'section': 'section',
-  'block': 'block',
-  'component': 'component',
-  'composable': 'composable',
-  'app-plugin': 'plugin',
-  'override': 'override',
-  'route': 'API route',
-  'nitro-plugin': 'Nitro plugin',
-  'orchestr-plugin': 'orchestr plugin',
-  'orchestr-file': 'orchestr',
-  'media-library': 'media library',
+  'section': 'sections',
+  'block': 'blocks',
+  'component': 'components',
+  'composable': 'composables',
+  'app-plugin': 'plugins',
+  'override': 'overrides',
+  'route': 'API routes',
+  'nitro-plugin': 'Nitro plugins',
+  'orchestr-plugin': 'orchestr plugins',
+  'orchestr-file': 'orchestr files',
+  'media-library': 'media libraries',
 }
 
 const ABOVE_APP_UTILS = new Set<Kind | undefined>(['section', 'block', 'component', 'composable', 'app-plugin', 'override'])

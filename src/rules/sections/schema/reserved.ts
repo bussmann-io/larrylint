@@ -7,12 +7,12 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow top-level schema field names that never reach the component\'s props.',
+      description: 'Disallow schema field names that Vue or frontend-core already use',
     },
     schema: [],
     messages: {
-      reserved: '\'{{name}}\' never arrives as a prop: Vue handles key, ref, ref_for and ref_key itself, and merges class and style into the root element. Pick another name, e.g. variant for a style selector.',
-      slots: 'frontend-core passes a section\'s blocks in its slots prop, so a field named slots is overwritten. Pick another name.',
+      reserved: 'Vue uses \'{{name}}\' itself, so the component never gets this field. Rename it.',
+      slots: 'frontend-core passes the blocks in the slots prop, so it overwrites this field. Rename it.',
     },
   },
 

@@ -6,11 +6,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow `required` on schema fields, which Studio doesn\'t support.',
+      description: 'Disallow `required` on schema fields',
     },
     schema: [],
     messages: {
-      required: 'Schema fields have no required option, so Studio ignores it. Give the field a default instead.',
+      required: 'Studio ignores required. Give the field a default instead.',
     },
   },
 

@@ -14,11 +14,11 @@ export default defineRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Disallow schema fields the section or block never reads.',
+      description: 'Disallow schema fields the component never uses',
     },
     schema: [],
     messages: {
-      unused: 'Studio shows \'{{name}}\' to editors, but the component never reads it. Use the field or remove it.',
+      unused: 'The component never uses \'{{name}}\'. Use the field or remove it.',
     },
   },
 

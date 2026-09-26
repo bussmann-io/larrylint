@@ -11,8 +11,8 @@ vueTester.run('definition-description', rule, {
   ],
 
   invalid: [
-    { filename, code: withDefinition(`defineSection({ component: 'SectionHero', schema: [] })`), errors: [{ messageId: 'description' }] },
+    { filename, code: withDefinition(`defineSection({ component: 'SectionHero', schema: [] })`), errors: [{ messageId: 'description', data: { kind: 'section' } }] },
     { filename, code: withDefinition(`defineSection({ component: 'SectionHero', studio: { label: 'Hero' }, schema: [] })`), errors: [{ messageId: 'description' }] },
-    { filename, code: withDefinition(`defineBlock({ component: 'BlockCard', studio: { label: 'Card', description: '  ' }, schema: [] })`), errors: [{ messageId: 'description' }] },
+    { filename, code: withDefinition(`defineBlock({ component: 'BlockCard', studio: { label: 'Card', description: '  ' }, schema: [] })`), errors: [{ messageId: 'description', data: { kind: 'block' } }] },
   ],
 })

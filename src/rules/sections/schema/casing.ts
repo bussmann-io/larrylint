@@ -6,12 +6,12 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow top-level schema field names that Vue renames or rejects as props.',
+      description: 'Disallow schema field names that Vue renames or rejects',
     },
     schema: [],
     messages: {
-      hyphen: 'Vue camelizes \'{{name}}\' to {{suggestion}}, so the prop never arrives under the field\'s name. Name the field {{suggestion}}.',
-      dollar: 'Vue rejects prop names that start with $, so \'{{name}}\' never arrives as a prop. Pick another name.',
+      hyphen: 'Vue renames \'{{name}}\' to \'{{suggestion}}\', so the component never gets this field. Name it \'{{suggestion}}\'.',
+      dollar: 'Vue doesn\'t allow props that start with $, so the component never gets this field. Rename it.',
     },
   },
 

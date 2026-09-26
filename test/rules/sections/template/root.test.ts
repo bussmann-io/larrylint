@@ -18,7 +18,7 @@ vueTester.run('single-root', rule, {
   ],
 
   invalid: [
-    { filename, code: section(`  <section>Menu</section>\n  <MenuSheet :open="open" />`), errors: [{ messageId: 'roots', line: 11 }] },
-    { filename, code: section(`  <TwoRoots />`, `import TwoRoots from '../components/TwoRoots.vue'`), errors: [{ messageId: 'componentRoots', data: { name: 'TwoRoots' } }] },
+    { filename, code: section(`  <section>Menu</section>\n  <MenuSheet :open="open" />`), errors: [{ messageId: 'roots', data: { kind: 'section' }, line: 11 }] },
+    { filename, code: section(`  <TwoRoots />`, `import TwoRoots from '../components/TwoRoots.vue'`), errors: [{ messageId: 'componentRoots', data: { name: 'TwoRoots', kind: 'section' } }] },
   ],
 })

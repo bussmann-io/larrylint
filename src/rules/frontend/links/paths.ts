@@ -13,11 +13,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow hand-built paths to pages, which miss the per-language paths and market prefixes Studio sets.',
+      description: 'Disallow page paths built by hand',
     },
     schema: [],
     messages: {
-      path: 'Page paths are set per page and language in Studio, and each market adds its own prefix, e.g. /en, so this path can lead to the wrong page. Resolve the link with linkResolver instead.',
+      path: 'Hand-built page paths differ per language and market. Use linkResolver instead.',
     },
   },
 

@@ -11,11 +11,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow copying module options into the public runtime config, which reaches the browser.',
+      description: 'Disallow copying all module options into the public runtime config',
     },
     schema: [],
     messages: {
-      options: 'runtimeConfig.public reaches the browser, and with it every token or secret among the module options. Copy only the options meant to be public, e.g. options.storefrontUrl.',
+      options: 'This sends all module options to the browser, secrets included. Copy only the public ones, e.g. options.storefrontUrl.',
     },
   },
 

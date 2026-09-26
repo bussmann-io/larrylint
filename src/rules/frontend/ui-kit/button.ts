@@ -12,11 +12,11 @@ export default defineRule({
     type: 'problem',
     fixable: 'code',
     docs: {
-      description: 'Disallow `type` on the ui-kit buttons, which silently render their `button-type` prop instead.',
+      description: 'Disallow `type` on ui-kit buttons',
     },
     schema: [],
     messages: {
-      buttonType: '<{{tag}}> ignores type and always renders its button-type prop, which defaults to "button". Use button-type.',
+      buttonType: '<{{tag}}> ignores type. Use button-type instead.',
     },
   },
 

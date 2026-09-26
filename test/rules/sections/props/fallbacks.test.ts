@@ -29,7 +29,7 @@ vueTester.run('dead-fallbacks', rule, {
   invalid: [
     { filename, code: component(`const columns = computed(() => props.columns ?? '3')`), errors: [{ messageId: 'picker', data: { type: 'select', fill: `'2'`, fallback: `'3'` } }] },
     { filename, code: component(`const gap = computed(() => props.gap ?? 'm')`), errors: [{ messageId: 'picker', data: { type: 'toggle_button', fill: `'s'`, fallback: `'m'` } }] },
-    { filename, code: component(`const alignment = props.alignment ?? 'left'`), errors: [{ messageId: 'picker', data: { type: 'content_alignment', fill: `'center-center'`, fallback: `'left'` } }] },
+    { filename, code: component(`const alignment = props.alignment ?? 'left'`), errors: [{ messageId: 'alignment', data: { fill: `'center-center'` } }] },
     { filename, code: component(`const cta = computed(() => props.showCta ?? true)`), errors: [{ messageId: 'checkbox' }] },
     { filename, code: component('', `<h2>{{ heading ?? t('cards.title') }}</h2>`), errors: [{ messageId: 'text', data: { type: 'text' } }] },
     { filename, code: component('', `<Cards :columns="props.columns ?? '3'" />`), errors: [{ messageId: 'picker' }] },

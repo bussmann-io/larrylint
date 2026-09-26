@@ -9,12 +9,12 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require error handling where a mutateAsync() promise is awaited or dropped, since a rejected mutation takes down its whole section or block.',
+      description: 'Require error handling for awaited or dropped `mutateAsync()` calls',
     },
     schema: [],
     messages: {
-      unhandled: 'If this mutation fails, frontend-core replaces the whole section or block with its "Retry" state, unless every caller catches the error. Catch it here with try/catch or .catch().',
-      dropped: 'Nothing handles this promise, so a failed mutation ends up as an unhandled rejection without any feedback. Catch it with try/catch or .catch().',
+      unhandled: 'If this mutation fails, an error replaces the whole section or block. Catch it with try/catch or .catch().',
+      dropped: 'Nothing catches errors of this mutation. Add .catch(), or await it in a try/catch.',
     },
   },
 

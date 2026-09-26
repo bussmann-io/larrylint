@@ -8,11 +8,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow counting slot children, since frontend-core passes all blocks of a slot as one Fragment.',
+      description: 'Disallow counting the blocks of a slot with `.length`',
     },
     schema: [],
     messages: {
-      length: 'frontend-core passes all blocks of a slot as one Fragment, so this length is 1. Count the rendered blocks with a helper that flattens Fragments.',
+      length: 'For blocks, this is always 1: frontend-core passes them as one Fragment. Count the Fragment\'s children instead.',
     },
   },
 

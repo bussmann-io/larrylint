@@ -6,7 +6,7 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require the `component` of a section or block definition to match its file name.',
+      description: 'Require the `component` of a definition to match its file name',
     },
     schema: [],
     messages: {

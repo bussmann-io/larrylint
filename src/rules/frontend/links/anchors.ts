@@ -13,11 +13,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow plain `<a>` tags for internal and resolved links, which reload the page and break Studio\'s navigation sync.',
+      description: 'Disallow plain `<a>` tags for internal links',
     },
     schema: [],
     messages: {
-      anchor: 'A plain <a> reloads the whole page and breaks Studio\'s navigation sync. Use <NuxtLink> for internal links.',
+      anchor: 'A plain <a> reloads the whole page. Use <NuxtLink> for internal links.',
     },
   },
 

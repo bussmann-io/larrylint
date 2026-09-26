@@ -5,11 +5,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Keep your own token ids out of the namespaces of Laioutr\'s canonical types.',
+      description: 'Disallow your own token ids in the namespaces of Laioutr\'s canonical types',
     },
     schema: [],
     messages: {
-      canonical: '\'{{namespace}}/\' belongs to Laioutr\'s canonical types, and a later canonical-types release or another app can take this id. Token metadata is last-write-wins, so put your own tokens under your app\'s namespace.',
+      canonical: '\'{{namespace}}/\' belongs to Laioutr\'s canonical types. Use your app\'s own namespace.',
     },
   },
 

@@ -8,11 +8,11 @@ export default defineRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Keep server/middleware/ to orchestr and Nitro middleware.',
+      description: 'Disallow files other than middleware in `server/middleware/`',
     },
     schema: [],
     messages: {
-      helper: 'server/middleware/ holds orchestr and Nitro middleware. Move helpers like this to server/utils/.',
+      helper: 'Only middleware belongs in server/middleware/. Move this file to server/utils/.',
     },
   },
 

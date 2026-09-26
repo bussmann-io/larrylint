@@ -25,7 +25,7 @@ vueTester.run('definition-folder', rule, {
     {
       filename: runtime('app/blocks/CardImage.vue'),
       code: `<template><img /></template>`,
-      errors: [{ messageId: 'notDefined', data: { folder: 'blocks', kind: 'block', definer: 'defineBlock' } }],
+      errors: [{ messageId: 'notDefined', data: { definer: 'defineBlock' } }],
     },
   ],
 })

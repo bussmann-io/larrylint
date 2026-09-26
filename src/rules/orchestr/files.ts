@@ -5,11 +5,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Keep orchestr/ to handler files, since Laioutr loads every file in it as a Nitro plugin.',
+      description: 'Disallow files other than handlers in `orchestr/`',
     },
     schema: [],
     messages: {
-      notAHandler: 'Laioutr loads every file in orchestr/ as a Nitro plugin, so a helper here runs at startup or breaks the build. Move it to server/utils/, and name handlers *.query.ts, *.resolver.ts, *.link.ts, *.action.ts, *.template.ts or *.page-index.ts.',
+      notAHandler: 'Only handlers belong in orchestr/. Move this file to server/utils/, or give it a handler suffix like .query.ts or .action.ts.',
     },
   },
 

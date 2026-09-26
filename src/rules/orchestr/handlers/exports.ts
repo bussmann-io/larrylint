@@ -5,11 +5,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require handler files to export their handler as default.',
+      description: 'Require handler files to export their handler as default',
     },
     schema: [],
     messages: {
-      missingDefault: 'Laioutr loads every file in orchestr/ as a Nitro plugin from its default export, so without one the build fails. Export the handler as default.',
+      missingDefault: 'Export the handler as default, this will fail the build.',
     },
   },
 

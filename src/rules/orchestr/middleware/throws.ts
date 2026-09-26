@@ -10,12 +10,12 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow throwing in extendRequest(), which runs before every query, so a throw takes down every page.',
+      description: 'Disallow throwing in `extendRequest()`',
     },
     schema: [],
     messages: {
-      throws: 'extendRequest() runs before every query, so this throw takes down every page. Return a stand-in instead, e.g. a client that fails only when it\'s used.',
-      throwsInCall: '{{name}}() can throw ({{location}}). extendRequest() runs before every query, so that takes down every page. Catch it here or return a stand-in.',
+      throws: 'A throw in extendRequest() breaks every page. Throw later instead, e.g. when the client is used.',
+      throwsInCall: '{{name}}() can throw ({{location}}), and a throw in extendRequest() breaks every page. Catch it here.',
     },
   },
 

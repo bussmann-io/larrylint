@@ -6,11 +6,11 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require runtime config keys of apps to be the package itself or one of its dependencies.',
+      description: 'Require runtime config keys to be this package or one of its dependencies',
     },
     schema: [],
     messages: {
-      key: '\'{{key}}\' isn\'t this package or one of its dependencies, so its config is missing at runtime. Use the key of an installed app.',
+      key: '\'{{key}}\' isn\'t this package or one of its dependencies, so this config is undefined.',
     },
   },
 

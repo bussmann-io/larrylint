@@ -34,9 +34,9 @@ After that, `eslint .` and your editor report larrylint's rules next to your own
 | Rule | Description |
 | --- | --- |
 | `larrylint/layers` | App, server and shared code stay apart, and runtime code doesn't import build-time code, or `node:` modules outside the server. Nothing imports orchestr handlers, and handlers get API clients from the orchestr context. Utils are the bottom layer, followed by composables, components and sections. |
-| `larrylint/heavy-imports` | Sections, blocks and plugins load the packages in `heavyPackages` with `import()`: frontend-core imports every section and block up front, and plugins run on every page, so a static import lands in the chunk every page loads. |
+| `larrylint/heavy-imports` | Sections, blocks and plugins load the packages in `heavyPackages` with `import()`: frontend-core imports every section and block up front, and plugins run on every page, so a static import loads the package on every page. |
 | `larrylint/config-keys` | Runtime config keys like `'@laioutr-app/shopware'` are the app itself or one of its dependencies, otherwise the config is missing at runtime. |
-| `larrylint/public-config` | The module doesn't copy its whole options object into `runtimeConfig.public`, which reaches the browser with every token among them. |
+| `larrylint/public-config` | The module doesn't copy its whole options object into `runtimeConfig.public`, which would send every secret in it to the browser. |
 
 Type imports are fine across most layers, since they don't end up in the bundle.
 
@@ -48,7 +48,7 @@ Type imports are fine across most layers, since they don't end up in the bundle.
 | `larrylint/orchestr-cookies` | Cookies and headers are only written in `extendRequest()` and action handlers, since query, link and resolver handlers and `use()` middleware can run after the headers are sent. Cookies go through frontend-core's `setManagedCookie()` and `deleteManagedCookie()`, which the Studio preview needs. |
 | `larrylint/handler-exports` | Handler files export their handler as default. Without one, the build fails. |
 | `larrylint/middleware-files` | `server/middleware/` only holds orchestr and Nitro middleware; helpers go to `server/utils/`. |
-| `larrylint/initware-throws` | `extendRequest()` doesn't throw, directly or through a function it calls: it runs before every query, so a throw takes down every page. |
+| `larrylint/initware-throws` | `extendRequest()` doesn't throw, directly or through a function it calls: it runs before every query, so a throw breaks every page. |
 | `larrylint/token-namespaces` | Your own tokens stay out of the namespaces of Laioutr's canonical types, like `ecommerce/`, where a later canonical-types release or another app can take the same id. |
 
 ### Sections and blocks
@@ -58,21 +58,21 @@ Type imports are fine across most layers, since they don't end up in the bundle.
 | `larrylint/definition-folder` | `defineSection()` lives in `app/sections/` and `defineBlock()` in `app/blocks/` (or `section/` and `block/`), and every `.vue` there has one. |
 | `larrylint/component-name` | The `component` of a definition matches its file name. |
 | `larrylint/definition-description` | Definitions have a `studio.description`, which Studio shows in its section picker and AI agents read through Laioutr's MCP server. |
-| `larrylint/single-root` | Sections and blocks render one root element, also through a component they wrap. Otherwise Vue drops the `data-lfc-*` markers frontend-core adds. |
+| `larrylint/single-root` | Sections and blocks render one root element, also through a component they wrap. Otherwise Vue drops the `data-lfc-*` attributes Studio needs to select them in the preview. |
 | `larrylint/slot-children` | Nothing counts slot children with `.length`: frontend-core passes all blocks of a slot as one Fragment. |
 | `larrylint/reserved-field-names` | No top-level schema fields named `key`, `ref`, `ref_for`, `ref_key`, `class` or `style`, which Vue handles itself, and no `slots` on sections, which frontend-core overwrites. |
-| `larrylint/field-name-case` | Top-level schema field names have no `-` and don't start with `$`: Vue camelizes the one and rejects the other. |
+| `larrylint/field-name-case` | Top-level schema field names have no `-` and don't start with `$`, which Vue renames or rejects as props. |
 | `larrylint/required-fields` | Schema fields have no `required`, which Studio ignores. Give them a `default` instead. |
 | `larrylint/unused-fields` | The component reads every schema field it defines, directly, through the section it's a block of, or in another field's `if`, so editors don't get fields that do nothing. |
-| `larrylint/dead-fallbacks` | No `??` fallbacks that never apply: frontend-core fills unset pickers with their first option, checkboxes with `false` and text fields with `''`. |
+| `larrylint/dead-fallbacks` | No `??` fallbacks that are never used: frontend-core fills unset pickers with their first option, content alignments with the center, checkboxes with `false` and text fields with `''`. |
 
 ### Frontend
 
 | Rule | Description |
 | --- | --- |
 | `larrylint/button-type` | No `type` on the ui-kit buttons: they always render their `button-type` prop, so `type="submit"` silently renders a dead button. Autofixable. |
-| `larrylint/mutation-errors` | An awaited or dropped `mutateAsync()` handles its error. Otherwise a failed mutation replaces the whole section or block with frontend-core's "Retry" state, or ends up as an unhandled rejection. |
-| `larrylint/resolve-result` | Nothing tests the result of `linkResolver.resolve()`: a link it can't resolve comes back as a `#…` fallback, not as an empty value. |
+| `larrylint/mutation-errors` | An awaited or dropped `mutateAsync()` handles its error. Otherwise a failed mutation replaces the whole section or block with an error, or nothing handles it. |
+| `larrylint/resolve-result` | Nothing checks the result of `linkResolver.resolve()`: a link it can't resolve comes back as a `#…` fallback, not as an empty value. |
 | `larrylint/hand-built-links` | Links to pages come from `linkResolver`, not from paths like `` `/hotels/${slug}` ``: page paths are set per page and language in Studio, and each market adds its own prefix, like `/en`. |
 | `larrylint/internal-anchors` | Internal and resolved links use `<NuxtLink>`: a plain `<a>` reloads the page and breaks Studio's navigation sync. |
 

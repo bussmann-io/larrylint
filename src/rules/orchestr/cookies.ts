@@ -16,12 +16,12 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Write cookies and headers only where orchestr allows it: in extendRequest() and action handlers, with frontend-core\'s managed cookie functions.',
+      description: 'Require cookies and headers to be set in `extendRequest()` or action handlers, with frontend-core\'s managed cookie functions',
     },
     schema: [],
     messages: {
-      streamed: 'Orchestr may have sent the response headers by the time {{name}}() runs here, so the browser never gets it. Write cookies and headers in extendRequest() or an action handler.',
-      managed: 'Use {{managed}}() instead. It applies Laioutr\'s cookie policy, which the Studio preview needs (SameSite=None and Partitioned), and {{name}}() skips it.',
+      streamed: 'The headers may already be sent when {{name}}() runs here. Call it in extendRequest() or an action handler instead.',
+      managed: 'Use {{managed}}() instead, so it also works in the Studio preview.',
     },
   },
 

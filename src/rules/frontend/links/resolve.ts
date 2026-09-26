@@ -12,12 +12,12 @@ export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow testing the result of linkResolver.resolve(), which falls back to a \'#…\' string instead of an empty value.',
+      description: 'Disallow checking the result of `linkResolver.resolve()`',
     },
     schema: [],
     messages: {
-      tested: 'linkResolver.resolve() returns a \'#…\' fallback instead of an empty value when it can\'t resolve a link, so this check doesn\'t catch broken links. Use resolveOrThrow() (frontend-core 0.42+) in a try/catch to tell them apart.',
-      branch: 'When it can\'t resolve the link, linkResolver.resolve() returns a \'#…\' fallback here, so the checks on {{name}} treat a broken link as a working one. Use resolveOrThrow() (frontend-core 0.42+) in a try/catch and return undefined instead.',
+      tested: 'linkResolver.resolve() never returns an empty value, so this check misses broken links. Use resolveOrThrow() in a try/catch instead.',
+      branch: 'linkResolver.resolve() never returns an empty value, so the checks on \'{{name}}\' miss broken links. Use resolveOrThrow() in a try/catch instead.',
     },
   },
 

@@ -5,19 +5,26 @@ import { defineRule } from '../../../lib/rule'
 import { isNullish } from '../../../utils/ast/values'
 import { findPropsVariable } from '../../../utils/vue/script'
 
-const TEXTS = new Set(['text', 'textarea', 'secret'])
+const MESSAGES: Record<string, string> = {
+  checkbox: 'checkbox',
+  content_alignment: 'alignment',
+  text: 'text',
+  textarea: 'text',
+  secret: 'text',
+}
 
 export default defineRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow ?? fallbacks that never apply, because frontend-core fills unset fields: pickers with their first option, checkboxes with false and text with \'\'.',
+      description: 'Disallow `??` fallbacks on fields that frontend-core always fills',
     },
     schema: [],
     messages: {
-      picker: 'frontend-core fills an unset {{type}} field with its first option, {{fill}}, so this fallback never applies. Make {{fallback}} the first option if it should be the default.',
-      checkbox: 'frontend-core fills an unset checkbox with false, so this fallback never applies. Name the field so that unchecked is the default.',
-      text: 'frontend-core fills an unset {{type}} field with \'\', so ?? never falls back. Use || if an empty field should fall back.',
+      picker: 'This fallback is never used: an unset {{type}} gets its first option, {{fill}}. To use {{fallback}}, make it the first option.',
+      alignment: 'This fallback is never used: an unset content_alignment is {{fill}}. Remove the fallback.',
+      checkbox: 'This fallback is never used: an unset checkbox is false. To make true the default, invert the field, e.g. hideIcon instead of showIcon.',
+      text: 'An unset {{type}} field is \'\', so ?? never falls back. Use || instead.',
     },
   },
 
@@ -74,7 +81,7 @@ export default defineRule({
             continue
           }
 
-          const messageId = field.type === 'checkbox' ? 'checkbox' : TEXTS.has(field.type) ? 'text' : 'picker'
+          const messageId = MESSAGES[field.type] ?? 'picker'
           const fill = typeof field.value === 'string' ? `'${field.value}'` : String(field.value)
 
           report({ node, messageId, data: { type: field.type, fill, fallback: context.sourceCode.getText(node.right) } })
