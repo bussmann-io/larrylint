@@ -100,8 +100,13 @@ export function walkBody(fn: FunctionNode, enter: (node: Node, caught: boolean) 
     }
   }
 
-  for (const child of children(fn.body)) {
-    visit(child, false)
+  if (fn.body.type === 'BlockStatement') {
+    for (const child of children(fn.body)) {
+      visit(child, false)
+    }
+  }
+  else {
+    visit(fn.body, false)
   }
 }
 
