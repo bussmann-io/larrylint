@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, statSync } from 'node:fs'
-import { dirname, resolve } from 'pathe'
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
+import { dirname, join, resolve } from 'pathe'
 
 /** Extensions tried, in order, when an import leaves them out. */
 const EXTENSIONS = ['', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '/index.ts', '/index.js']
@@ -99,4 +99,26 @@ export function resolveModule(importer: string, source: string) {
   const target = resolve(dirname(importer), source.split('?')[0]!)
 
   return EXTENSIONS.map(extension => `${target}${extension}`).find(path => existsSync(path) && !isDirectory(path))
+}
+
+/**
+ * Finds an installed package the way Node would, by looking in `node_modules` from a folder upwards.
+ *
+ * @param from Absolute path of the folder to start from.
+ * @param name The package name, e.g. `@laioutr-core/canonical-types`.
+ *
+ * @returns The package's real folder, or `undefined` if it isn't installed.
+ */
+export function findPackage(from: string, name: string) {
+  for (let folder = from; ; folder = dirname(folder)) {
+    const candidate = join(folder, 'node_modules', name)
+
+    if (existsSync(join(candidate, 'package.json'))) {
+      return realpathSync(candidate)
+    }
+
+    if (dirname(folder) === folder) {
+      return undefined
+    }
+  }
 }

@@ -6,3 +6,6 @@ dist
 .eslintcache
 *.log*
 *.env
+
+# Fixture apps need their own packages.
+!test/fixtures/*/node_modules

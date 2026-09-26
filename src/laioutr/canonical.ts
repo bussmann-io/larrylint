@@ -1,29 +1,39 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'pathe'
+import { findPackage } from '../utils/fs'
 
-/** The namespaces of canonical-types 0.34, used when the app's copy can't be read. */
-const KNOWN = ['b2b', 'blog', 'core', 'ecommerce', 'location', 'newsletter', 'suggested-search']
+const PACKAGE = '@laioutr-core/canonical-types'
 
 const TOKEN_ID = /define\w*Token\(\s*["'`]([a-z0-9-]+)\//g
 
 const cache = new Map<string, Set<string>>()
 
 /**
- * Lists the token namespaces Laioutr's canonical types use, read from the app's installed
- * `@laioutr-core/canonical-types` so new namespaces are picked up.
+ * Lists the token namespaces of Laioutr's canonical types, read from the app's installed
+ * `@laioutr-core/canonical-types`, so they match the version the app uses.
  *
  * @param root Absolute path of the package root.
  *
  * @returns Namespaces like `ecommerce`, without the slash.
+ *
+ * @throws {Error} When the package isn't installed, since the namespaces can't be known without it.
  */
 export function canonicalNamespaces(root: string) {
   let namespaces = cache.get(root)
 
   if (!namespaces) {
-    namespaces = new Set(KNOWN)
+    // Apps usually get the package through frontend-core, which pnpm doesn't hoist to the root.
+    const frontendCore = findPackage(root, '@laioutr-core/frontend-core')
+    const folder = findPackage(root, PACKAGE) ?? (frontendCore && findPackage(frontendCore, PACKAGE))
 
-    for (const file of listFiles(join(root, 'node_modules/@laioutr-core/canonical-types/dist'))) {
-      for (const [, namespace] of readFileSync(file, 'utf8').matchAll(TOKEN_ID)) {
+    if (!folder) {
+      throw new Error(`larrylint can't find ${PACKAGE} from ${root}, which it reads the canonical token namespaces from. Install the app's dependencies first.`)
+    }
+
+    namespaces = new Set()
+
+    for (const file of readdirSync(join(folder, 'dist'), { recursive: true, encoding: 'utf8' }).filter(file => /\.[cm]?js$/.test(file))) {
+      for (const [, namespace] of readFileSync(join(folder, 'dist', file), 'utf8').matchAll(TOKEN_ID)) {
         namespaces.add(namespace!)
       }
     }
@@ -32,20 +42,4 @@ export function canonicalNamespaces(root: string) {
   }
 
   return namespaces
-}
-
-/**
- * Lists the JavaScript files in a folder and its subfolders.
- *
- * @param folder Absolute path of the folder.
- *
- * @returns The files' paths, empty if the folder doesn't exist.
- */
-function listFiles(folder: string): string[] {
-  try {
-    return readdirSync(folder, { recursive: true, encoding: 'utf8' }).filter(file => /\.[cm]?js$/.test(file)).map(file => join(folder, file))
-  }
-  catch {
-    return []
-  }
 }
