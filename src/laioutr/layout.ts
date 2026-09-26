@@ -121,7 +121,7 @@ export function domainOf(file: FileInfo) {
  *
  * @returns The side, kind and domain of the file.
  */
-function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'domain'> {
+function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'handler' | 'domain'> {
   const [side, folder = '', ...rest] = parts
 
   if (parts.length < 2 || (side !== 'app' && side !== 'server' && side !== 'shared')) {
