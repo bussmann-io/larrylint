@@ -26,6 +26,18 @@ export interface Field {
   node: ObjectExpression
   /** The field's `name`, if it's a string literal. */
   name?: { value: string, node: Literal }
+  /** The field's `type`, e.g. `text` or `checkbox`, if it's a string literal. */
+  type?: string
+  /** The decorator role, e.g. `style` or `visibility`, of a field that styles or toggles another field. */
+  as?: string
+}
+
+export interface Group {
+  /** The group's object literal. */
+  node: ObjectExpression
+  /** The group's `label`, if it's a string literal. */
+  label?: { value: string, node: Literal }
+  fields: Field[]
 }
 
 /**
@@ -52,21 +64,76 @@ export function readDefinition(call: CallExpression): Definition | undefined {
 }
 
 /**
- * Lists the top-level fields of every schema group. Spreads and factory calls are skipped,
- * since their fields aren't known without running them.
+ * Reads the schema groups of a definition, e.g. `{ label: 'Content', fields: [...] }`. Spreads and
+ * factory calls are skipped, since their fields aren't known without running them.
+ *
+ * @param definition The definition.
+ *
+ * @returns The groups in schema order.
+ */
+export function readGroups(definition: Definition): Group[] {
+  return definition.options ? readSchema(definition.options) : []
+}
+
+/**
+ * Lists the top-level fields of every schema group, which become the component's props.
  *
  * @param definition The definition.
  *
  * @returns The fields in schema order.
  */
 export function readFields(definition: Definition) {
-  if (!definition.options) {
-    return []
+  return readGroups(definition).flatMap(group => group.fields)
+}
+
+/**
+ * Lists every field of a definition, including those nested in the schema of `object` fields.
+ *
+ * @param definition The definition.
+ *
+ * @returns The fields, depth first.
+ */
+export function readAllFields(definition: Definition) {
+  const fields: Field[] = []
+  const visit = (field: Field) => {
+    fields.push(field)
+    readSchema(field.node).flatMap(group => group.fields).forEach(visit)
   }
 
-  return objectElements(findProperty(definition.options, 'schema'))
-    .flatMap(group => objectElements(findProperty(group, 'fields')))
-    .map((node): Field => ({ node, name: findStringProperty(node, 'name') }))
+  readFields(definition).forEach(visit)
+
+  return fields
+}
+
+/**
+ * Reads the `schema` groups of a definition or an `object` field.
+ *
+ * @param owner The object with the `schema` property.
+ *
+ * @returns The groups.
+ */
+function readSchema(owner: ObjectExpression): Group[] {
+  return objectElements(findProperty(owner, 'schema')).map(group => ({
+    node: group,
+    label: findStringProperty(group, 'label'),
+    fields: objectElements(findProperty(group, 'fields')).map(readField),
+  }))
+}
+
+/**
+ * Reads a field's name, type and decorator role.
+ *
+ * @param node The field's object literal.
+ *
+ * @returns The field.
+ */
+function readField(node: ObjectExpression): Field {
+  return {
+    node,
+    name: findStringProperty(node, 'name'),
+    type: findStringProperty(node, 'type')?.value,
+    as: findStringProperty(node, 'as')?.value,
+  }
 }
 
 /**

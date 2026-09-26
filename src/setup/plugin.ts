@@ -9,7 +9,6 @@ import orchestrFiles from '../rules/orchestr/files'
 import handlerContext from '../rules/orchestr/handlers/context'
 import handlerDomains from '../rules/orchestr/handlers/domains'
 import handlerExports from '../rules/orchestr/handlers/exports'
-import contextCookies from '../rules/orchestr/middleware/context'
 import middlewareFiles from '../rules/orchestr/middleware/files'
 import orchestrMeta from '../rules/orchestr/middleware/meta'
 import initwareThrows from '../rules/orchestr/middleware/throws'
@@ -37,7 +36,6 @@ export const plugin = {
     'action-errors': actionErrors,
     'middleware-files': middlewareFiles,
     'initware-throws': initwareThrows,
-    'context-cookies': contextCookies,
     'orchestr-meta': orchestrMeta,
     'token-namespaces': tokenNamespaces,
     'token-nullable': tokenNullable,

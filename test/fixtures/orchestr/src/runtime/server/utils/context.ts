@@ -23,22 +23,3 @@ export function lazyClient() {
   }
 }
 
-export const readLocation = event => getCookie(event, 'location')
-
-export function readSelectedSlug(event) {
-  const raw = getCookie(event, 'karls.location')
-
-  if (!raw) {
-    return undefined
-  }
-
-  const parsed = destr(raw)
-
-  return parsed.slug
-}
-
-export async function getClientContext(event) {
-  const appId = getCookie(event, 'guest-app-id')
-
-  return { client: createClient(appId), shopId: 1 }
-}
