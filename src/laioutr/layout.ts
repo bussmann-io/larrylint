@@ -11,6 +11,8 @@ export type Kind
     | 'app-util'
     | 'app-plugin'
     | 'override'
+    | 'theme'
+    | 'shared-field'
     | 'handler'
     | 'orchestr-plugin'
     | 'orchestr-file'
@@ -32,7 +34,7 @@ export interface FileInfo {
   path: string
   /** Side of the file, e.g. `app`, `server`, `shared`, `build` or `other`. */
   side: Side
-  /** Kind of the file, e.g. `section`, `block`, `component`, `composable`, `app-util`, `app-plugin`, `override`, `handler`, `orchestr-plugin`, `orchestr-file`, `middleware`, `client`, `server-util`, `route`, `nitro-plugin`, `media-library`, `shared` or `other`. */
+  /** Kind of the file, e.g. `section`, `block`, `component`, `composable`, `app-util`, `app-plugin`, `override`, `theme`, `shared-field`, `handler`, `orchestr-plugin`, `orchestr-file`, `middleware`, `client`, `server-util`, `route`, `nitro-plugin`, `media-library`, `shared` or `other`. */
   kind?: Kind
   /** Type of an orchestr handler, from its file name, e.g. `action` for `Order.action.ts`. */
   handler?: HandlerType
@@ -46,13 +48,15 @@ const HANDLER_FILE = /\.(query|resolver|link|action|template|page-index)(?:\.[cm
 const TEST_FILE = /\.(?:test|spec)\.[cm]?[jt]sx?$/
 
 const APP_FOLDERS: Record<string, Kind> = {
-  sections: 'section',
-  blocks: 'block',
-  components: 'component',
-  composables: 'composable',
-  utils: 'app-util',
-  plugins: 'app-plugin',
-  overrides: 'override',
+  'sections': 'section',
+  'blocks': 'block',
+  'components': 'component',
+  'composables': 'composable',
+  'utils': 'app-util',
+  'plugins': 'app-plugin',
+  'overrides': 'override',
+  'theme': 'theme',
+  'shared-fields': 'shared-field',
 }
 
 const SERVER_FOLDERS: Record<string, Kind> = {
