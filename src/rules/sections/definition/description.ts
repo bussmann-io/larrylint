@@ -25,13 +25,15 @@ export default defineRule({
       }
 
       const studio = findProperty(options, 'studio')
-      const description = studio?.type === 'ObjectExpression' ? findProperty(studio, 'description') : undefined
-      const empty = description?.type === 'Literal' && (typeof description.value !== 'string' || description.value.trim() === '')
 
-      if (studio?.type === 'ObjectExpression' && (!description || empty)) {
-        report({ node: node.callee, messageId: 'description' })
+      // A studio object built elsewhere can't be checked here.
+      if (studio && studio.type !== 'ObjectExpression') {
+        return
       }
-      else if (!studio) {
+
+      const description = studio && findProperty(studio, 'description')
+
+      if (!description || (description.type === 'Literal' && String(description.value ?? '').trim() === '')) {
         report({ node: node.callee, messageId: 'description' })
       }
     },

@@ -20,3 +20,14 @@ export function kebabCase(name: string) {
 export function prefixName(name: string, prefix: string) {
   return `${prefix}${name.endsWith(prefix) ? name.slice(0, -prefix.length) : name}`
 }
+
+/**
+ * Turns a dash-case, snake_case or PascalCase name into camelCase.
+ *
+ * @param name The name, e.g. `show-heading`.
+ *
+ * @returns The camelCase name, e.g. `showHeading`.
+ */
+export function camelCase(name: string) {
+  return name.replace(/[-_\s]+(.)?/g, (_, char: string | undefined) => char?.toUpperCase() ?? '').replace(/^[A-Z]/, char => char.toLowerCase())
+}

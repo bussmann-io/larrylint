@@ -16,10 +16,19 @@ import resolverPassthrough from '../rules/orchestr/resolvers/passthrough'
 import resolverUndefined from '../rules/orchestr/resolvers/returns'
 import tokenNamespaces from '../rules/orchestr/tokens/namespaces'
 import tokenNullable from '../rules/orchestr/tokens/nullable'
+import definitionDescription from '../rules/sections/definition/description'
 import definitionFolder from '../rules/sections/definition/folder'
 import componentName from '../rules/sections/definition/name'
 import definitionPrefix from '../rules/sections/definition/prefix'
+import deadFallbacks from '../rules/sections/props/fallbacks'
+import unusedFields from '../rules/sections/props/unused'
+import fieldNameCase from '../rules/sections/schema/casing'
+import schemaGroups from '../rules/sections/schema/groups'
+import requiredFields from '../rules/sections/schema/required'
 import reservedFieldNames from '../rules/sections/schema/reserved'
+import rootId from '../rules/sections/template/id'
+import singleRoot from '../rules/sections/template/root'
+import slotChildren from '../rules/sections/template/slots'
 import layers from '../rules/structure/layers'
 
 export const plugin = {
@@ -42,7 +51,16 @@ export const plugin = {
     'definition-folder': definitionFolder,
     'definition-prefix': definitionPrefix,
     'component-name': componentName,
+    'definition-description': definitionDescription,
+    'root-id': rootId,
+    'single-root': singleRoot,
+    'slot-children': slotChildren,
     'reserved-field-names': reservedFieldNames,
+    'field-name-case': fieldNameCase,
+    'required-fields': requiredFields,
+    'schema-groups': schemaGroups,
+    'unused-fields': unusedFields,
+    'dead-fallbacks': deadFallbacks,
     'button-type': buttonType,
     'mutation-errors': mutationErrors,
   },
