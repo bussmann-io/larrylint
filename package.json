@@ -54,6 +54,6 @@
     "@types/estree": "^1.0.9",
     "@types/node": "^24.13.6",
     "obuild": "^0.4.40",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   }
 }
