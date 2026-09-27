@@ -12,8 +12,7 @@ describe('classify', () => {
     expect(classify('/app/src/runtime/server/orchestr/helpers.ts')).toMatchObject({ kind: 'orchestr-file' })
   })
 
-  it('finds middleware and API clients on the server', () => {
-    expect(classify('/app/src/runtime/server/middleware/hygraph.ts')).toMatchObject({ kind: 'middleware' })
+  it('finds API clients on the server', () => {
     expect(classify('/app/src/runtime/server/client/shopware.ts')).toMatchObject({ kind: 'client' })
     expect(classify('/app/src/runtime/server/orchestr-helper/cart.ts')).toMatchObject({ side: 'server', kind: 'other' })
   })

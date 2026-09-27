@@ -9,7 +9,6 @@ import buttonType from '../../rules/frontend/ui-kit/button'
 import orchestrCookies from '../../rules/orchestr/cookies'
 import orchestrFiles from '../../rules/orchestr/files'
 import handlerExports from '../../rules/orchestr/handlers/exports'
-import middlewareFiles from '../../rules/orchestr/middleware/files'
 import initwareThrows from '../../rules/orchestr/middleware/throws'
 import tokenNamespaces from '../../rules/orchestr/tokens/namespaces'
 import definitionDescription from '../../rules/sections/definition/description'
@@ -37,7 +36,6 @@ export const plugin = {
     'orchestr-files': orchestrFiles,
     'orchestr-cookies': orchestrCookies,
     'handler-exports': handlerExports,
-    'middleware-files': middlewareFiles,
     'initware-throws': initwareThrows,
     'token-namespaces': tokenNamespaces,
     'definition-folder': definitionFolder,

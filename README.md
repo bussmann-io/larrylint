@@ -47,7 +47,6 @@ Type imports are always fine, since they don't end up in the bundle.
 | `larrylint/orchestr-files` | Laioutr loads every file in `orchestr/` as a Nitro plugin, so only handler files belong there. |
 | `larrylint/orchestr-cookies` | Cookies and headers are only written in `extendRequest()` and action handlers, since query, link and resolver handlers and `use()` middleware can run after the headers are sent. Cookies go through frontend-core's `setManagedCookie()` and `deleteManagedCookie()`, which the Studio preview needs. |
 | `larrylint/handler-exports` | Handler files export their handler as default. Without one, the build fails. |
-| `larrylint/middleware-files` | `server/middleware/` only holds orchestr and Nitro middleware; helpers go to `server/utils/`. |
 | `larrylint/initware-throws` | `extendRequest()` doesn't throw, directly or through a function it calls: it runs before every query, so a throw breaks every page. |
 | `larrylint/token-namespaces` | Your own tokens stay out of the namespaces of Laioutr's canonical types, like `ecommerce/`, where a later canonical-types release or another app can take the same id. |
 
@@ -101,7 +100,7 @@ src/
 
 Where your sections, blocks and handlers live, larrylint reads from your `module.ts`: the folders and globs you pass to `registerLaioutrApp()`, and the plugins you pass to `addPlugin()`. So other folders work too, like `section/` and `block/` in Laioutr's own ui-app. Without a `module.ts` it can read, larrylint assumes the folders of Laioutr's [app starter](https://github.com/laioutr/app-starter): `app/sections/`, `app/blocks/` and `server/orchestr/`.
 
-Besides that, larrylint only relies on the names `app/components/`, `server/client/` and `server/middleware/`, and on the split into `app/`, `server/` and `shared/`.
+Besides that, larrylint only relies on the names `app/components/` and `server/client/`, and on the split into `app/`, `server/` and `shared/`.
 
 ## Baseline
 

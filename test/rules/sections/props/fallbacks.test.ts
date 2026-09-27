@@ -5,6 +5,7 @@ const filename = runtime('app/sections/SectionCards.vue')
 
 const fields = `[
   { name: 'heading', type: 'text' },
+  { name: 'intro', type: 'richtext' },
   { name: 'columns', type: 'select', options: [{ label: 'Two', value: '2' }, { label: 'Three', value: '3' }] },
   { name: 'gap', type: 'toggle_button', options: gapOptions },
   { name: 'alignment', type: 'content_alignment' },
@@ -18,7 +19,7 @@ function component(setup: string, template = '<div />', imports = `const gapOpti
 
 vueTester.run('dead-fallbacks', rule, {
   valid: [
-    { filename, code: component(`const columns = computed(() => props.columns || '3')\nconst limit = computed(() => props.limit ?? 12)`) },
+    { filename, code: component(`const columns = computed(() => props.columns || '3')\nconst limit = computed(() => props.limit ?? 12)\nconst intro = computed(() => props.intro || t('cards.intro'))`) },
     { filename, code: component(`const columns = computed(() => props.columns ?? '2')\nconst gap = computed(() => props.gap ?? 's')`) },
     { filename, code: component(`const cta = computed(() => props.showCta !== false)\nconst shown = props.showCta ?? false`, `<h2>{{ heading ?? '' }}{{ heading ?? undefined }}</h2>`) },
     { filename, code: component(`const alignment = props.alignment ?? 'center-center'`) },
@@ -32,6 +33,7 @@ vueTester.run('dead-fallbacks', rule, {
     { filename, code: component(`const alignment = props.alignment ?? 'left'`), errors: [{ messageId: 'alignment', data: { fill: `'center-center'` } }] },
     { filename, code: component(`const cta = computed(() => props.showCta ?? true)`), errors: [{ messageId: 'checkbox' }] },
     { filename, code: component('', `<h2>{{ heading ?? t('cards.title') }}</h2>`), errors: [{ messageId: 'text', data: { type: 'text' } }] },
+    { filename, code: component(`const intro = computed(() => props.intro ?? t('cards.intro'))`), errors: [{ messageId: 'text', data: { type: 'richtext' } }] },
     { filename, code: component('', `<Cards :columns="props.columns ?? '3'" />`), errors: [{ messageId: 'picker' }] },
     { filename: fixtureRuntime('app/sections/SectionCards.vue', 'components'), code: component(`const gap = props.gap ?? 'm'`, '<div />', `import { sizeOptions as gapOptions } from '../shared-fields/sizes'`), errors: [{ messageId: 'picker', data: { type: 'toggle_button', fill: `'s'`, fallback: `'m'` } }] },
   ],

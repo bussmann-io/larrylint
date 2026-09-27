@@ -14,7 +14,6 @@ export type Kind
     | 'handler'
     | 'orchestr-plugin'
     | 'orchestr-file'
-    | 'middleware'
     | 'client'
     | 'other'
 
@@ -43,7 +42,6 @@ const APP_FOLDERS: Record<string, Kind> = {
 }
 
 const SERVER_FOLDERS: Record<string, Kind> = {
-  middleware: 'middleware',
   client: 'client',
 }
 

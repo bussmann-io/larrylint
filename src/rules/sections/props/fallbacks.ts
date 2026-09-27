@@ -10,7 +10,7 @@ const MESSAGES: Record<string, string> = {
   content_alignment: 'alignment',
   text: 'text',
   textarea: 'text',
-  secret: 'text',
+  richtext: 'text',
 }
 
 export default defineRule({

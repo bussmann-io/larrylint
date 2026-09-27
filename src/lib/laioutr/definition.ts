@@ -15,7 +15,7 @@ export type Definer = keyof typeof DEFINERS
 
 const PICKERS = new Set(['select', 'radio', 'toggle_button'])
 
-const TEXTS = new Set(['text', 'textarea', 'secret'])
+const TEXTS = new Set(['text', 'textarea', 'richtext'])
 
 export interface Definition {
   /** The called definer, e.g. `defineSection`. */
