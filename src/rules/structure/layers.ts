@@ -6,6 +6,8 @@ import { defineRule } from '../../lib/rule'
 import { isTypeOnly } from '../../utils/ast/module'
 import { resolveImport } from '../../utils/fs'
 
+const SERVER_ONLY = /\.server\.[^/]+$/
+
 export default defineRule({
   meta: {
     type: 'problem',
@@ -18,12 +20,9 @@ export default defineRule({
       serverImportsApp: 'Server code can\'t import app code. Move what both need to src/runtime/shared/.',
       sharedImportsSide: 'Shared code can\'t import from {{side}}/.',
       runtimeImportsBuild: 'Runtime code can\'t import build code from src/, like module.ts. Type imports are fine.',
-      handlerImported: 'Don\'t import orchestr handlers. Move the code you need to server/utils/.',
-      clientInHandler: 'Handlers get API clients from the orchestr context, not by import. Move other code to server/utils/.',
-      serverUtilImportsUp: 'Server utils can\'t import {{kind}}. Type imports are fine.',
-      appUtilImportsUp: 'App utils can\'t import {{kind}}. Type imports are fine.',
-      composableImportsUp: 'Composables can\'t import {{kind}}. Type imports are fine.',
-      componentImportsSection: 'Components can\'t import sections.',
+      handlerImported: 'Don\'t import orchestr handlers. Move the code you need to server/orchestr-helper/.',
+      clientInHandler: 'Handlers get API clients from the orchestr context, not by import. Move constants to server/const/ and helpers to server/orchestr-helper/.',
+      schemaInComponent: 'Components can\'t import {{kind}}s.',
       nodeBuiltin: '\'{{name}}\' only works on the server. Move this code to server/.',
     },
   },
@@ -37,7 +36,7 @@ export default defineRule({
       }
 
       if (source.startsWith('node:')) {
-        if (importer.side !== 'server' && !typeOnly) {
+        if (importer.side !== 'server' && !typeOnly && !SERVER_ONLY.test(importer.path)) {
           report({ node, messageId: 'nodeBuiltin', data: { name: source } })
         }
 

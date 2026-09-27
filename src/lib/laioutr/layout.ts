@@ -1,4 +1,8 @@
+import type { Registration } from './registration'
+
 import { normalize } from 'pathe'
+import { withoutExtension } from '../../utils/fs'
+import { isRegistered, readRegistration } from './registration'
 
 export type Side = 'app' | 'server' | 'shared' | 'build' | 'other'
 
@@ -6,22 +10,12 @@ export type Kind
   = | 'section'
     | 'block'
     | 'component'
-    | 'composable'
-    | 'app-util'
     | 'app-plugin'
-    | 'override'
-    | 'theme'
-    | 'shared-field'
     | 'handler'
     | 'orchestr-plugin'
     | 'orchestr-file'
     | 'middleware'
     | 'client'
-    | 'server-util'
-    | 'route'
-    | 'nitro-plugin'
-    | 'media-library'
-    | 'shared'
     | 'other'
 
 export type HandlerType = 'query' | 'resolver' | 'link' | 'action' | 'template' | 'page-index'
@@ -33,7 +27,7 @@ export interface FileInfo {
   path: string
   /** Side of the file, e.g. `app` or `server`. */
   side: Side
-  /** Kind of the file, from its folder, e.g. `section` or `handler`. */
+  /** Kind of the file, from what `module.ts` registers and its folder, e.g. `section` or `handler`. */
   kind?: Kind
   /** Type of an orchestr handler, e.g. `action` for `Order.action.ts`. */
   handler?: HandlerType
@@ -45,32 +39,16 @@ const HANDLER_FILE = /\.(query|resolver|link|action|templates?|page-index)(?:\.[
 const TEST_FILE = /\.(?:test|spec)\.[cm]?[jt]sx?$/
 
 const APP_FOLDERS: Record<string, Kind> = {
-  'sections': 'section',
-  'section': 'section',
-  'blocks': 'block',
-  'block': 'block',
-  'components': 'component',
-  'composables': 'composable',
-  'utils': 'app-util',
-  'plugins': 'app-plugin',
-  'overrides': 'override',
-  'theme': 'theme',
-  'shared-fields': 'shared-field',
+  components: 'component',
 }
 
 const SERVER_FOLDERS: Record<string, Kind> = {
-  'middleware': 'middleware',
-  'client': 'client',
-  'utils': 'server-util',
-  'api': 'route',
-  'routes': 'route',
-  'plugins': 'nitro-plugin',
-  'media-library': 'media-library',
-  'media-libraries': 'media-library',
+  middleware: 'middleware',
+  client: 'client',
 }
 
 /**
- * Classifies a file of a Laioutr app by where it lives in the folder layout.
+ * Classifies a file of a Laioutr app by what its `module.ts` registers and where it lives.
  *
  * @param file Absolute path of the file, or of an import target without extension.
  *
@@ -85,7 +63,7 @@ export function classify(file: string): FileInfo | undefined {
   if (runtimeIndex !== -1) {
     const root = absolute.slice(0, runtimeIndex)
 
-    return { root, path: absolute.slice(root.length + 1), test, ...classifyRuntime(absolute.slice(runtimeIndex + '/src/runtime/'.length).split('/')) }
+    return { root, path: absolute.slice(root.length + 1), test, ...classifyRuntime(absolute.slice(runtimeIndex + '/src/runtime/'.length), readRegistration(root)) }
   }
 
   const srcIndex = absolute.lastIndexOf('/src/')
@@ -103,34 +81,47 @@ export function classify(file: string): FileInfo | undefined {
 /**
  * Classifies a path below `src/runtime/`.
  *
- * @param parts The path segments below `src/runtime/`.
+ * @param path The path relative to `src/runtime/`.
+ * @param registration What the app's `module.ts` registers.
  *
  * @returns The side and kind of the file.
  */
-export function classifyRuntime(parts: string[]): Pick<FileInfo, 'side' | 'kind' | 'handler'> {
-  const [side, folder = '', ...rest] = parts
+export function classifyRuntime(path: string, registration: Registration): Pick<FileInfo, 'side' | 'kind' | 'handler'> {
+  const [side, folder] = path.split('/')
 
-  if (parts.length < 2 || (side !== 'app' && side !== 'server' && side !== 'shared')) {
+  if (!folder || (side !== 'app' && side !== 'server' && side !== 'shared')) {
     return { side: 'other' }
   }
 
   if (side === 'shared') {
-    return { side, kind: 'shared' }
+    return { side }
   }
 
   if (side === 'app') {
-    return { side, kind: APP_FOLDERS[folder] ?? 'other' }
-  }
-
-  if (folder === 'orchestr') {
-    if (rest.length > 1 && rest[0] === 'plugins') {
-      return { side, kind: 'orchestr-plugin' }
+    if (isRegistered(path, registration.sections)) {
+      return { side, kind: 'section' }
     }
 
-    const handler = HANDLER_FILE.exec(parts.at(-1)!)?.[1]?.replace('templates', 'template') as HandlerType | undefined
+    if (isRegistered(path, registration.blocks)) {
+      return { side, kind: 'block' }
+    }
 
-    return { side, kind: handler ? 'handler' : 'orchestr-file', handler }
+    return { side, kind: registration.plugins.has(withoutExtension(path)) ? 'app-plugin' : APP_FOLDERS[folder] ?? 'other' }
   }
 
-  return { side, kind: SERVER_FOLDERS[folder] ?? 'other' }
+  const orchestr = registration.orchestr.find(dir => path.startsWith(`${dir}/`))
+
+  if (!orchestr) {
+    return { side, kind: SERVER_FOLDERS[folder] ?? 'other' }
+  }
+
+  const [first, ...rest] = path.slice(orchestr.length + 1).split('/')
+
+  if (first === 'plugins' && rest.length > 0) {
+    return { side, kind: 'orchestr-plugin' }
+  }
+
+  const handler = HANDLER_FILE.exec(path)?.[1]?.replace('templates', 'template') as HandlerType | undefined
+
+  return { side, kind: handler ? 'handler' : 'orchestr-file', handler }
 }

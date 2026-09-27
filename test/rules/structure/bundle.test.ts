@@ -1,5 +1,5 @@
 import rule from '../../../src/rules/structure/bundle'
-import { runtime, tsTester, vueTester } from '../../utils'
+import { fixtureRuntime, runtime, tsTester, vueTester } from '../../utils'
 
 const options = [{ packages: ['leaflet', 'qr-scanner'] }]
 
@@ -18,8 +18,10 @@ vueTester.run('heavy-imports', rule, {
 })
 
 tsTester.run('heavy-imports', rule, {
-  valid: [],
+  valid: [
+    { filename: fixtureRuntime('app/plugins/unused.ts', 'registered'), code: `import L from 'leaflet'\nexport default defineNuxtPlugin(() => {})`, options },
+  ],
   invalid: [
-    { filename: runtime('app/plugins/map.ts'), code: `import L from 'leaflet'\nexport default defineNuxtPlugin(() => {})`, options, errors: [{ messageId: 'heavy' }] },
+    { filename: fixtureRuntime('app/plugins/map.ts', 'registered'), code: `import L from 'leaflet'\nexport default defineNuxtPlugin(() => {})`, options, errors: [{ messageId: 'heavy' }] },
   ],
 })

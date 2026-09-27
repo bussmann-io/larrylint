@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { classify } from '../../../src/lib/laioutr/layout'
+import { fixtureRuntime } from '../../utils'
 
 describe('classify', () => {
   it('finds handlers and plugins in orchestr/', () => {
@@ -11,29 +12,34 @@ describe('classify', () => {
     expect(classify('/app/src/runtime/server/orchestr/helpers.ts')).toMatchObject({ kind: 'orchestr-file' })
   })
 
-  it('finds server layers', () => {
-    expect(classify('/app/src/runtime/server/utils/ticketing/checkout.ts')).toMatchObject({ kind: 'server-util' })
+  it('finds middleware and API clients on the server', () => {
     expect(classify('/app/src/runtime/server/middleware/hygraph.ts')).toMatchObject({ kind: 'middleware' })
     expect(classify('/app/src/runtime/server/client/shopware.ts')).toMatchObject({ kind: 'client' })
-    expect(classify('/app/src/runtime/server/api/tickets/status.get.ts')).toMatchObject({ kind: 'route' })
-    expect(classify('/app/src/runtime/server/routes/feed.xml.ts')).toMatchObject({ kind: 'route' })
-    expect(classify('/app/src/runtime/server/plugins/log.ts')).toMatchObject({ kind: 'nitro-plugin' })
-    expect(classify('/app/src/runtime/server/media-library/tickets.ts')).toMatchObject({ kind: 'media-library' })
-    expect(classify('/app/src/runtime/server/media-libraries/shopware.ts')).toMatchObject({ kind: 'media-library' })
-    expect(classify('/app/src/runtime/server/graphql/documents.ts')).toMatchObject({ side: 'server', kind: 'other' })
+    expect(classify('/app/src/runtime/server/orchestr-helper/cart.ts')).toMatchObject({ side: 'server', kind: 'other' })
   })
 
-  it('finds app layers and shared code', () => {
+  it('finds sections, blocks and components in the app', () => {
     expect(classify('/app/src/runtime/app/sections/SectionHero.vue')).toMatchObject({ side: 'app', kind: 'section' })
     expect(classify('/app/src/runtime/app/blocks/account/BlockProfile.vue')).toMatchObject({ kind: 'block' })
-    expect(classify('/app/src/runtime/app/section/SectionHeroSlider.vue')).toMatchObject({ kind: 'section' })
-    expect(classify('/app/src/runtime/app/block/BlockPlanCard.vue')).toMatchObject({ kind: 'block' })
+    expect(classify('/app/src/runtime/app/sections/heroItems.ts')).toMatchObject({ kind: 'other' })
     expect(classify('/app/src/runtime/app/components/Card.vue')).toMatchObject({ kind: 'component' })
-    expect(classify('/app/src/runtime/app/composables/useCart.ts')).toMatchObject({ kind: 'composable' })
-    expect(classify('/app/src/runtime/app/utils/format.ts')).toMatchObject({ kind: 'app-util' })
-    expect(classify('/app/src/runtime/app/plugins/theme.ts')).toMatchObject({ kind: 'app-plugin' })
-    expect(classify('/app/src/runtime/app/overrides/Media.vue')).toMatchObject({ kind: 'override' })
-    expect(classify('/app/src/runtime/shared/tokens/Brunch.ts')).toMatchObject({ side: 'shared', kind: 'shared' })
+    expect(classify('/app/src/runtime/app/plugins/theme.ts')).toMatchObject({ kind: 'other' })
+    expect(classify('/app/src/runtime/shared/tokens/Brunch.ts')).toMatchObject({ side: 'shared' })
+  })
+
+  it('follows what module.ts registers', () => {
+    const registered = (path: string) => classify(fixtureRuntime(path, 'registered'))
+
+    expect(registered('app/section/hero/SectionHeroSlider.vue')).toMatchObject({ kind: 'section' })
+    expect(registered('app/section/hero/BlockSlide.vue')).toMatchObject({ kind: 'block' })
+    expect(registered('app/block/BlockPlanCard.vue')).toMatchObject({ kind: 'block' })
+    expect(registered('app/section/hero/HeroSlide.vue')).toMatchObject({ kind: 'other' })
+    expect(registered('app/sections/SectionHero.vue')).toMatchObject({ kind: 'other' })
+    expect(registered('app/plugins/map.ts')).toMatchObject({ kind: 'app-plugin' })
+    expect(registered('app/plugins/scanner.client.ts')).toMatchObject({ kind: 'app-plugin' })
+    expect(registered('app/plugins/unused.ts')).toMatchObject({ kind: 'other' })
+    expect(registered('server/handlers/Order.query.ts')).toMatchObject({ kind: 'handler', handler: 'query' })
+    expect(registered('server/orchestr/Order.query.ts')).toMatchObject({ kind: 'other' })
   })
 
   it('tells build-time code, types and other files apart', () => {

@@ -33,12 +33,12 @@ After that, `eslint .` and your editor report larrylint's rules next to your own
 
 | Rule | Description |
 | --- | --- |
-| `larrylint/layers` | App, server and shared code stay apart, and runtime code doesn't import build-time code, or `node:` modules outside the server. Nothing imports orchestr handlers, and handlers get API clients from the orchestr context. Utils are the bottom layer, followed by composables, components and sections. |
+| `larrylint/layers` | App, server and shared code don't import each other, runtime code doesn't import build-time code, and `node:` modules stay on the server. As Laioutr's coding standards ask, handlers get API clients from the orchestr context, nothing imports handler files, and components don't import sections or blocks. |
 | `larrylint/heavy-imports` | Sections, blocks and plugins load the packages in `heavyPackages` with `import()`: frontend-core imports every section and block up front, and plugins run on every page, so a static import loads the package on every page. |
 | `larrylint/config-keys` | Runtime config keys like `'@laioutr-app/shopware'` are the app itself or one of its dependencies, otherwise the config is missing at runtime. |
 | `larrylint/public-config` | The module doesn't copy its whole options object into `runtimeConfig.public`, which would send every secret in it to the browser. |
 
-Type imports are fine across most layers, since they don't end up in the bundle.
+Type imports are always fine, since they don't end up in the bundle.
 
 ### Orchestr
 
@@ -55,7 +55,7 @@ Type imports are fine across most layers, since they don't end up in the bundle.
 
 | Rule | Description |
 | --- | --- |
-| `larrylint/definition-folder` | `defineSection()` lives in `app/sections/` and `defineBlock()` in `app/blocks/` (or `section/` and `block/`), and every `.vue` there has one. |
+| `larrylint/definition-folder` | `defineSection()` and `defineBlock()` live where `module.ts` registers sections and blocks, and every `.vue` registered there has one. Files that `module.ts` wires up by hand, like replacements for upstream sections, can live anywhere. |
 | `larrylint/component-name` | The `component` of a definition matches its file name. |
 | `larrylint/definition-description` | Definitions have a `studio.description`, which Studio shows in its section picker and AI agents read through Laioutr's MCP server. |
 | `larrylint/single-root` | Sections and blocks render one root element, also through a component they wrap. Otherwise Vue drops the `data-lfc-*` attributes Studio needs to select them in the preview. |
@@ -78,34 +78,30 @@ Type imports are fine across most layers, since they don't end up in the bundle.
 
 ## Layout
 
-larrylint expects the layout of Laioutr's [app starter](https://github.com/laioutr/app-starter):
+larrylint follows the runtime layout from Laioutr's [coding standards](https://docs.laioutr.com/apps/app-development/coding-standards):
 
 ```
 src/
-├── module.ts                  # build time
+├── module.ts                # registers sections, blocks, orchestr handlers and plugins
 └── runtime/
-    ├── app/
-    │   ├── sections/          # defineSection() components, or section/
-    │   ├── blocks/            # defineBlock() components, or block/
-    │   ├── components/
-    │   ├── composables/
-    │   ├── overrides/         # replacements for upstream components
-    │   ├── plugins/
-    │   ├── shared-fields/     # schema fields sections and blocks share
-    │   ├── theme/
+    ├── app/                 # client code
+    │   ├── components/      # UI components
+    │   ├── sections/        # defineSection() components
+    │   └── blocks/          # defineBlock() components
+    ├── server/              # server code
+    │   ├── client/          # API client factories
+    │   ├── const/
+    │   ├── mappers/
+    │   ├── middleware/      # defineOrchestr() with extendRequest()
+    │   ├── orchestr/        # *.query.ts, *.resolver.ts, *.link.ts, *.action.ts, *.template.ts, *.page-index.ts
+    │   ├── orchestr-helper/ # helper logic for handlers
     │   └── utils/
-    ├── server/
-    │   ├── orchestr/
-    │   │   ├── <entity>/      # *.query.ts, *.resolver.ts, *.link.ts, *.action.ts, *.template.ts, *.page-index.ts
-    │   │   └── plugins/
-    │   ├── middleware/        # orchestr middleware and the builders handlers use
-    │   ├── client/            # API clients, nothing else
-    │   ├── api/               # server routes, or routes/
-    │   ├── plugins/           # Nitro plugins
-    │   ├── media-library/     # or media-libraries/
-    │   └── utils/
-    └── shared/                # code for both the app and the server
+    └── shared/              # code for both sides, like orchestr tokens
 ```
+
+Where your sections, blocks and handlers live, larrylint reads from your `module.ts`: the folders and globs you pass to `registerLaioutrApp()`, and the plugins you pass to `addPlugin()`. So other folders work too, like `section/` and `block/` in Laioutr's own ui-app. Without a `module.ts` it can read, larrylint assumes the folders of Laioutr's [app starter](https://github.com/laioutr/app-starter): `app/sections/`, `app/blocks/` and `server/orchestr/`.
+
+Besides that, larrylint only relies on the names `app/components/`, `server/client/` and `server/middleware/`, and on the split into `app/`, `server/` and `shared/`.
 
 ## Baseline
 

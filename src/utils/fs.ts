@@ -3,6 +3,8 @@ import { dirname, join, resolve } from 'pathe'
 
 const EXTENSIONS = ['', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '/index.ts', '/index.js']
 
+const SOURCE_EXTENSION = /\.(?:vue|[cm]?[jt]sx?)$/
+
 const directories = new Map<string, boolean>()
 
 /**
@@ -61,6 +63,17 @@ export function isDirectory(path: string) {
   }
 
   return result
+}
+
+/**
+ * Drops the extension of a Vue or script file, e.g. `app/plugins/map` for `app/plugins/map.ts`.
+ *
+ * @param path The path.
+ *
+ * @returns The path without its extension.
+ */
+export function withoutExtension(path: string) {
+  return path.replace(SOURCE_EXTENSION, '')
 }
 
 /**

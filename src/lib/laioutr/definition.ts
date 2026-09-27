@@ -7,8 +7,8 @@ import { findProperty, findStringProperty, objectElements } from '../../utils/as
 import { walk } from '../../utils/ast/walk'
 
 export const DEFINERS = {
-  defineSection: { kind: 'section', folder: 'sections' },
-  defineBlock: { kind: 'block', folder: 'blocks' },
+  defineSection: { kind: 'section', option: 'sections' },
+  defineBlock: { kind: 'block', option: 'blocks' },
 } as const
 
 export type Definer = keyof typeof DEFINERS

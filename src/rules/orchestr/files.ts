@@ -9,7 +9,7 @@ export default defineRule({
     },
     schema: [],
     messages: {
-      notAHandler: 'Only handlers belong in orchestr/. Move this file to server/utils/, or give it a handler suffix like .query.ts or .action.ts.',
+      notAHandler: 'Only handlers belong in orchestr/. Move this file to server/orchestr-helper/, or give it a handler suffix like .query.ts or .action.ts.',
     },
   },
 
