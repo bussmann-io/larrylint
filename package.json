@@ -1,7 +1,7 @@
 {
   "name": "larrylint",
   "type": "module",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "packageManager": "pnpm@12.8.1",
   "description": "Opinionated rules for Laioutr apps, as an ESLint preset and a CLI.",
   "author": "Frederik Bußmann <frederik@bussmann.io>",
