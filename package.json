@@ -37,7 +37,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@typescript-eslint/parser": "^8.70.1",
+    "@typescript-eslint/parser": "^8.71.0",
     "c12": "^3.3.4",
     "citty": "^0.2.2",
     "consola": "^3.4.2",
@@ -52,8 +52,8 @@
   "devDependencies": {
     "@antfu/eslint-config": "^9.5.1",
     "@types/estree": "^1.0.9",
-    "@types/node": "^24.13.6",
+    "@types/node": "^24.19.0",
     "obuild": "^0.4.40",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.2"
   }
 }

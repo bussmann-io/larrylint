@@ -167,7 +167,7 @@ importers:
   .:
     dependencies:
       '@typescript-eslint/parser':
-        specifier: ^8.70.1
+        specifier: ^8.71.0
         version: 8.71.0(eslint@10.11.0(jiti@2.7.0))(typescript@6.0.3)
       c12:
         specifier: ^3.3.4
@@ -207,13 +207,13 @@ importers:
         specifier: ^1.0.9
         version: 1.0.9
       '@types/node':
-        specifier: ^24.13.6
+        specifier: ^24.19.0
         version: 24.19.1
       obuild:
         specifier: ^0.4.40
         version: 0.4.43(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magicast@0.5.5)(typescript@6.0.3)
       vitest:
-        specifier: ^5.0.1
+        specifier: ^5.0.2
         version: 5.0.3(@types/node@24.19.1)(vite@8.3.1(@types/node@24.19.1)(jiti@2.7.0)(yaml@2.9.1))
 
 packages:
