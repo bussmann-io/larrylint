@@ -207,7 +207,7 @@ importers:
         specifier: ^1.0.9
         version: 1.0.9
       '@types/node':
-        specifier: ^24.19.0
+        specifier: ^24.19.1
         version: 24.19.1
       obuild:
         specifier: ^0.4.43
