@@ -2,7 +2,7 @@
   "name": "larrylint",
   "type": "module",
   "version": "0.2.2",
-  "packageManager": "pnpm@12.16.1",
+  "packageManager": "pnpm@12.18.0",
   "description": "Opinionated rules for Laioutr apps, as an ESLint preset and a CLI.",
   "author": "Frederik Bußmann <frederik@bussmann.io>",
   "license": "MIT",
@@ -41,7 +41,7 @@
     "c12": "^3.3.4",
     "citty": "^0.2.2",
     "consola": "^3.4.2",
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "magicast": "^0.5.5",
     "nypm": "^0.6.12",
     "pathe": "^2.0.3",
@@ -54,6 +54,6 @@
     "@types/estree": "^1.0.10",
     "@types/node": "^24.19.2",
     "obuild": "^0.4.45",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   }
 }
